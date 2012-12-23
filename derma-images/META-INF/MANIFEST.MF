@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Derma-images
+Bundle-SymbolicName: derma-images; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.bh.derma.images.internal.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ Nebula;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ClassPath: .,
+ swt-grouplayout.jar

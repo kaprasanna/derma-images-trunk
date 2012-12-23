@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="com.bh.derma.images.platform.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="RCP Perspective"
+            class="com.bh.derma.images.ui.Perspective"
+            id="derma-images.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="com.bh.derma.images.ui.NewPatientVisitView"
+            id="com.bh.derma.images.ui.NewPatientVisitView"
+            name="Patient and Visits">
+      </view>
+      <view
+            class="com.bh.derma.images.ui.ImagesGridView"
+            id="com.bh.derma.images.ui.ImagesGrid"
+            name="Images">
+      </view>
+   </extension>
+
+</plugin>
