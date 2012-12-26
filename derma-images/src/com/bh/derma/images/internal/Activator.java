@@ -1,6 +1,9 @@
 package com.bh.derma.images.internal;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -58,4 +61,29 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+	
+	public static IViewPart getView(IWorkbenchWindow window, String viewId) {
+	    IViewReference[] refs = window.getActivePage().getViewReferences();
+	    for (IViewReference viewReference : refs) {
+	        if (viewReference.getId().equals(viewId)) {
+	            return viewReference.getView(true);
+	        }
+	    }
+	    return null;
+	}
+	
+	/**
+	 * IWorkbenchPage page = 
+Workbench.getInstance().getActiveWorkbenchWindow().getActivePage()
+
+Perspective perspective = page.getPerspective();
+
+String viewId = "myViewId"; //defined by you
+
+//get the reference for your viewId
+IViewReference ref = page.findViewReference(viewId);
+
+//release the view
+perspective.getViewFactory.releaseView(ref);
+	 */
 }

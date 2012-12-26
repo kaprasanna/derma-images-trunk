@@ -6,6 +6,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -15,7 +16,17 @@ import org.eclipse.ui.part.ViewPart;
 public class ImagesGridView extends ViewPart {
 
 	public static final String ID = "com.bh.derma.images.ui.ImagesGridView"; //$NON-NLS-1$
+	private Composite thumbnailGridComposite;
+	private ScrolledComposite viewerScrolledComposite;
 
+	public Composite getThumbnailGridComposite() {
+		return thumbnailGridComposite;
+	}
+	
+	public ScrolledComposite getViewerScrolledComposite() {
+		return viewerScrolledComposite;
+	}
+	
 	public ImagesGridView() {
 	}
 
@@ -25,76 +36,47 @@ public class ImagesGridView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		Composite container = new Composite(parent, SWT.NONE);
+		final Composite thumbnailComposite = new Composite(parent, SWT.NONE);
+		GridLayout viewerCompositeGL = new GridLayout(2, false);
+		thumbnailComposite.setLayout(viewerCompositeGL);
+		GridData viewerCompositeData = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_BOTH);
+		viewerCompositeData.horizontalSpan = 2;
+		thumbnailComposite.setLayoutData(viewerCompositeData);
+		thumbnailComposite.setSize(thumbnailComposite.computeSize(parent.getSize().x, SWT.DEFAULT));
 		
-/*		
-		// image grid
-		final Gallery gallery = new Gallery(parent, SWT.V_SCROLL | SWT.VIRTUAL);
-		gallery.setVirtualGroups(true);
-
-
-		// Group Renderer
-		DefaultGalleryGroupRenderer gr = new DefaultGalleryGroupRenderer();
-		gr.setItemSize(64, 64);
-		gr.setMinMargin(3);
-		//Item Renderer
-		DefaultGalleryItemRenderer ir = new DefaultGalleryItemRenderer();
-
-		gallery.setGroupRenderer(gr);
-		gallery.setItemRenderer(ir);
+		viewerScrolledComposite = new ScrolledComposite(
+									thumbnailComposite, SWT.H_SCROLL | SWT.V_SCROLL);
+		viewerScrolledComposite.setExpandHorizontal(true);
+		viewerScrolledComposite.setExpandVertical(true);
+		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_BOTH);
+		data.horizontalSpan = 2;
+		viewerScrolledComposite.setLayoutData(data);
+		viewerScrolledComposite.setSize(viewerScrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
-		gallery.setItemCount(1);
-//		
-//		gallery.addListener(SWT.Selection, new Listener() {
-//			@Override
-//			public void handleEvent(Event event) {
-//				GalleryItem[] selectedItem = gallery.getSelection();
-//			}
-//		});
-
+		thumbnailGridComposite = new Composite(viewerScrolledComposite, SWT.BORDER);
+//		GridLayout thumbnailGridCompositeGL = new GridLayout(3, false);
+//		thumbnailGridComposite.setLayout(thumbnailGridCompositeGL);
+//		GridData thumbnailGridCompositeGD = new GridData(GridData.FILL_BOTH);
+//		thumbnailGridCompositeGD.horizontalSpan=2;
+//		thumbnailGridComposite.setLayoutData(thumbnailGridCompositeGD);
 		
-		GalleryItem parentItem = gallery.getItem(0);
-		//use a folder name
-		if(parentItem.getParentItem() == null)
-		{
-			parentItem.setText("C:\\Users\\pk022878\\Pictures\\Bannerghatta national park\\Temp");
-			//add the contents of the folder
-			File f = new File("C:\\Users\\pk022878\\Pictures\\Bannerghatta national park\\Temp");
-			File[] contents = f.listFiles();
-			
-			//set number of items in this group 
-			parentItem.setItemCount(contents.length);
-			
-			for(int i =0; i < contents.length; i++)
-			{
-				String imgFilePath = contents[i].getAbsolutePath();
-				
-				ImageLoader loader = new ImageLoader();
-				GalleryItem subItem = parentItem.getItem(i);
-				Image img = new Image(parent.getDisplay(), loader.load(imgFilePath)[0]);
-				subItem.setData(imgFilePath);
-				subItem.setImage(img);
-			}			
-		}
+//		Label imageLabel2 = new Label(thumbnailGridComposite, SWT.BORDER);
+//		imageLabel2.setImage(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\for_twitter.png"));
+//		Label imageLabel1 = new Label(thumbnailGridComposite, SWT.BORDER);
+//		imageLabel1.setImage(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\Photo-ID.png"));
+//		Label imageLabel3 = new Label(thumbnailGridComposite, SWT.BORDER);
 		
-		// image grid end*/
-		Composite composite = new Composite(container, SWT.NONE);
-		composite.setBounds(10, 10, 940, 589);
-		composite.setLayout(new GridLayout(1, false));
+		Point size = thumbnailGridComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		viewerScrolledComposite.setMinSize(size);
 		
-		ScrolledComposite scrolledComposite = new ScrolledComposite(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		GridData gd_scrolledComposite = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_scrolledComposite.widthHint = 910;
-		gd_scrolledComposite.heightHint = 558;
-		scrolledComposite.setLayoutData(gd_scrolledComposite);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
+		viewerScrolledComposite.setContent(thumbnailGridComposite);
+		viewerScrolledComposite.layout(true);
 		
-		Button btnRemoveSelected = new Button(container, SWT.NONE);
+		Button btnRemoveSelected = new Button(thumbnailComposite, SWT.NONE);
 		btnRemoveSelected.setBounds(22, 618, 108, 25);
 		btnRemoveSelected.setText("Remove Selected");
 		
-		Button btnNewButton = new Button(container, SWT.NONE);
+		Button btnNewButton = new Button(thumbnailComposite, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

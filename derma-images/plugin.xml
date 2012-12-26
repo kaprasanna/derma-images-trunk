@@ -28,7 +28,7 @@
       </view>
       <view
             class="com.bh.derma.images.ui.ImagesGridView"
-            id="com.bh.derma.images.ui.ImagesGrid"
+            id="com.bh.derma.images.ui.ImagesGridView"
             name="Images">
       </view>
    </extension>
