@@ -6,11 +6,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.part.ViewPart;
 
 public class ImagesGridView extends ViewPart {
@@ -54,17 +57,14 @@ public class ImagesGridView extends ViewPart {
 		viewerScrolledComposite.setSize(viewerScrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
 		thumbnailGridComposite = new Composite(viewerScrolledComposite, SWT.BORDER);
-//		GridLayout thumbnailGridCompositeGL = new GridLayout(3, false);
-//		thumbnailGridComposite.setLayout(thumbnailGridCompositeGL);
-//		GridData thumbnailGridCompositeGD = new GridData(GridData.FILL_BOTH);
-//		thumbnailGridCompositeGD.horizontalSpan=2;
-//		thumbnailGridComposite.setLayoutData(thumbnailGridCompositeGD);
+		GridLayout thumbnailGridCompositeGL = new GridLayout(3, false);
+		thumbnailGridComposite.setLayout(thumbnailGridCompositeGL);
+		GridData thumbnailGridCompositeGD = new GridData(GridData.FILL_BOTH);
+		thumbnailGridCompositeGD.horizontalSpan=2;
+		thumbnailGridComposite.setLayoutData(thumbnailGridCompositeGD);
 		
-//		Label imageLabel2 = new Label(thumbnailGridComposite, SWT.BORDER);
-//		imageLabel2.setImage(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\for_twitter.png"));
 //		Label imageLabel1 = new Label(thumbnailGridComposite, SWT.BORDER);
 //		imageLabel1.setImage(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\Photo-ID.png"));
-//		Label imageLabel3 = new Label(thumbnailGridComposite, SWT.BORDER);
 		
 		Point size = thumbnailGridComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		viewerScrolledComposite.setMinSize(size);

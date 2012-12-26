@@ -2,10 +2,13 @@ package com.bh.derma.images.ui;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -24,6 +27,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
@@ -180,20 +184,40 @@ public class NewPatientVisitView extends ViewPart {
 				comp1Gl.horizontalSpan = 2;
 				comp1.setLayoutData(comp1Gl);
 				
+				Composite comp2 = new Composite(thumbnailGridComposite, SWT.BORDER);
+				comp2.setLayoutData(new GridData(175, 200));
+				
+				
 				Button chkBox1 = new Button(comp1Parent, SWT.CHECK);
 				Text txt1 = new Text(comp1Parent, SWT.BORDER);
 				GridData txt1Gl = new GridData(GridData.FILL_HORIZONTAL);
 				txt1Gl.grabExcessHorizontalSpace = true;
-				txt1.setLayoutData(txt1Gl);				
+				txt1.setLayoutData(txt1Gl);
+				final Image image1 = new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\for_twitter.png");
+				final Image image2 = new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\Photo-ID.png");
 				
-				Composite comp2 = new Composite(thumbnailGridComposite, SWT.BORDER);
-				comp2.setLayoutData(new GridData(175, 200));
+				comp1.addMouseListener(new MouseListener() {
+					
+					@Override
+					public void mouseUp(MouseEvent e) {
+					}
+					
+					@Override
+					public void mouseDown(MouseEvent e) {
+					}
+					
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						Dialog dialog = new MyDialog(Display.getDefault().getActiveShell(), image1);
+						dialog.open();
+					}
+				});				
 				
-				MyListener comp1Listener = new MyListener(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\for_twitter.png"), comp1);
+				MyListener comp1Listener = new MyListener(image1, comp1);
 				comp1.addListener (SWT.Dispose, comp1Listener);
 				comp1.addListener (SWT.Paint, comp1Listener);
 				
-				MyListener comp2Listener = new MyListener(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\Photo-ID.png"), comp2);
+				MyListener comp2Listener = new MyListener(image2, comp2);
 				comp2.addListener (SWT.Dispose, comp1Listener);
 				comp2.addListener (SWT.Paint, comp2Listener);
 				
@@ -309,5 +333,57 @@ public class NewPatientVisitView extends ViewPart {
 				}
 			}
 		}
-	};
+	}
+	
+	class MyDialog extends Dialog {
+		Image image;
+		protected MyDialog(Shell parentShell, Image image) {
+			super(parentShell);
+			this.image = image;
+		}
+		
+		@Override
+		protected Control createDialogArea(Composite parent) {
+			final Composite imageBaseComposite = (Composite) super.createDialogArea(parent);
+			GridLayout imageBaseCompositeGL = new GridLayout(2, false);
+			imageBaseComposite.setLayout(imageBaseCompositeGL);
+			GridData imageBaseCompositeData = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_BOTH);
+			imageBaseCompositeData.horizontalSpan = 2;
+			imageBaseComposite.setLayoutData(imageBaseCompositeData);
+			imageBaseComposite.setSize(imageBaseComposite.computeSize(parent.getSize().x, SWT.DEFAULT));
+			
+			ScrolledComposite scrolledComposite = new ScrolledComposite(
+										imageBaseComposite, SWT.H_SCROLL | SWT.V_SCROLL);
+			scrolledComposite.setExpandHorizontal(true);
+			scrolledComposite.setExpandVertical(true);
+			GridData scrolledCompositeGD = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_BOTH);
+			scrolledCompositeGD.horizontalSpan = 2;
+			scrolledComposite.setLayoutData(scrolledCompositeGD);
+			scrolledComposite.setSize(scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			
+			Composite imageComposite = new Composite(scrolledComposite, SWT.BORDER);
+			GridLayout imageCompositeGL = new GridLayout(3, false);
+			imageComposite.setLayout(imageCompositeGL);
+			GridData imageCompositeGD = new GridData(GridData.FILL_BOTH);
+			imageCompositeGD.horizontalSpan=2;
+			imageComposite.setLayoutData(imageCompositeGD);
+			
+			Label imageLabel = new Label(imageComposite, SWT.BORDER);
+			imageLabel.setImage(image);
+			
+			Point size = imageComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			scrolledComposite.setMinSize(size);
+			
+			scrolledComposite.setContent(imageComposite);
+			scrolledComposite.layout(true);
+			
+			return imageBaseComposite;
+		}
+		
+		@Override
+		protected Button createButton(Composite parent, int id, String label,
+				boolean defaultButton) {
+			return null;
+		}
+	}
 }
