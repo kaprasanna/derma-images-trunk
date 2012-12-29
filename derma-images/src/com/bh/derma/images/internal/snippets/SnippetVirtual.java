@@ -64,7 +64,7 @@ public class SnippetVirtual {
 				}
 
 				System.out.println( "setData index " + index); //$NON-NLS-1$
-				// Your image here
+				// Your imagesList here
 				// item.setImage(eclipseImage);
 				item.setText("Item " + index); //$NON-NLS-1$
 			}

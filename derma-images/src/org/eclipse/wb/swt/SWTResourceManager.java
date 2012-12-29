@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * Utility class for managing OS resources associated with SWT controls such as colors, fonts, images, etc.
+ * Utility class for managing OS resources associated with SWT controls such as colors, fonts, imagesList, etc.
  * <p>
  * !!! IMPORTANT !!! Application code must explicitly invoke the <code>dispose()</code> method to release the
  * operating system resources managed by cached objects when those objects and OS resources are no longer
@@ -103,14 +103,14 @@ public class SWTResourceManager {
 	//
 	////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Maps image paths to images.
+	 * Maps imagesList paths to imagesList.
 	 */
 	private static Map<String, Image> m_imageMap = new HashMap<String, Image>();
 	/**
 	 * Returns an {@link Image} encoded by the specified {@link InputStream}.
 	 * 
 	 * @param stream
-	 *            the {@link InputStream} encoding the image data
+	 *            the {@link InputStream} encoding the imagesList data
 	 * @return the {@link Image} encoded by the specified input stream
 	 */
 	protected static Image getImage(InputStream stream) throws IOException {
@@ -129,7 +129,7 @@ public class SWTResourceManager {
 	 * Returns an {@link Image} stored in the file at the specified path.
 	 * 
 	 * @param path
-	 *            the path to the image file
+	 *            the path to the imagesList file
 	 * @return the {@link Image} stored in the file at the specified path
 	 */
 	public static Image getImage(String path) {
@@ -149,9 +149,9 @@ public class SWTResourceManager {
 	 * Returns an {@link Image} stored in the file at the specified path relative to the specified class.
 	 * 
 	 * @param clazz
-	 *            the {@link Class} relative to which to find the image
+	 *            the {@link Class} relative to which to find the imagesList
 	 * @param path
-	 *            the path to the image file, if starts with <code>'/'</code>
+	 *            the path to the imagesList file, if starts with <code>'/'</code>
 	 * @return the {@link Image} stored in the file at the specified path
 	 */
 	public static Image getImage(Class<?> clazz, String path) {
@@ -170,7 +170,7 @@ public class SWTResourceManager {
 	}
 	private static final int MISSING_IMAGE_SIZE = 10;
 	/**
-	 * @return the small {@link Image} that can be used as placeholder for missing image.
+	 * @return the small {@link Image} that can be used as placeholder for missing imagesList.
 	 */
 	private static Image getMissingImage() {
 		Image image = new Image(Display.getCurrent(), MISSING_IMAGE_SIZE, MISSING_IMAGE_SIZE);
@@ -183,19 +183,19 @@ public class SWTResourceManager {
 		return image;
 	}
 	/**
-	 * Style constant for placing decorator image in top left corner of base image.
+	 * Style constant for placing decorator imagesList in top left corner of base imagesList.
 	 */
 	public static final int TOP_LEFT = 1;
 	/**
-	 * Style constant for placing decorator image in top right corner of base image.
+	 * Style constant for placing decorator imagesList in top right corner of base imagesList.
 	 */
 	public static final int TOP_RIGHT = 2;
 	/**
-	 * Style constant for placing decorator image in bottom left corner of base image.
+	 * Style constant for placing decorator imagesList in bottom left corner of base imagesList.
 	 */
 	public static final int BOTTOM_LEFT = 3;
 	/**
-	 * Style constant for placing decorator image in bottom right corner of base image.
+	 * Style constant for placing decorator imagesList in bottom right corner of base imagesList.
 	 */
 	public static final int BOTTOM_RIGHT = 4;
 	/**
@@ -203,31 +203,31 @@ public class SWTResourceManager {
 	 */
 	protected static final int LAST_CORNER_KEY = 5;
 	/**
-	 * Maps images to decorated images.
+	 * Maps imagesList to decorated imagesList.
 	 */
 	@SuppressWarnings("unchecked")
 	private static Map<Image, Map<Image, Image>>[] m_decoratedImageMap = new Map[LAST_CORNER_KEY];
 	/**
-	 * Returns an {@link Image} composed of a base image decorated by another image.
+	 * Returns an {@link Image} composed of a base imagesList decorated by another imagesList.
 	 * 
 	 * @param baseImage
 	 *            the base {@link Image} that should be decorated
 	 * @param decorator
-	 *            the {@link Image} to decorate the base image
-	 * @return {@link Image} The resulting decorated image
+	 *            the {@link Image} to decorate the base imagesList
+	 * @return {@link Image} The resulting decorated imagesList
 	 */
 	public static Image decorateImage(Image baseImage, Image decorator) {
 		return decorateImage(baseImage, decorator, BOTTOM_RIGHT);
 	}
 	/**
-	 * Returns an {@link Image} composed of a base image decorated by another image.
+	 * Returns an {@link Image} composed of a base imagesList decorated by another imagesList.
 	 * 
 	 * @param baseImage
 	 *            the base {@link Image} that should be decorated
 	 * @param decorator
-	 *            the {@link Image} to decorate the base image
+	 *            the {@link Image} to decorate the base imagesList
 	 * @param corner
-	 *            the corner to place decorator image
+	 *            the corner to place decorator imagesList
 	 * @return the resulting decorated {@link Image}
 	 */
 	public static Image decorateImage(final Image baseImage, final Image decorator, final int corner) {
@@ -273,14 +273,14 @@ public class SWTResourceManager {
 	 * Dispose all of the cached {@link Image}'s.
 	 */
 	public static void disposeImages() {
-		// dispose loaded images
+		// dispose loaded imagesList
 		{
 			for (Image image : m_imageMap.values()) {
 				image.dispose();
 			}
 			m_imageMap.clear();
 		}
-		// dispose decorated images
+		// dispose decorated imagesList
 		for (int i = 0; i < m_decoratedImageMap.length; i++) {
 			Map<Image, Map<Image, Image>> cornerDecoratedImageMap = m_decoratedImageMap[i];
 			if (cornerDecoratedImageMap != null) {

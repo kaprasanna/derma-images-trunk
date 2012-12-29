@@ -21,8 +21,8 @@ public class NewSnippet {
 		Shell shell = new Shell( display );
 		shell.setLayout( new GridLayout( 2, false ));
 
-		// Load an image
-		//ImageData imgData = new ImageData( "your image path" );
+		// Load an imagesList
+		//ImageData imgData = new ImageData( "your imagesList path" );
 		ImageData imgData = new ImageData( "C:\\Users\\pk022878\\Pictures\\Photo-ID.png" );
 		Image image = new Image( display, imgData );
 
@@ -45,7 +45,7 @@ public class NewSnippet {
 		l.setLayoutData( layoutData );
 
 		Text text = new Text( shell, SWT.SINGLE | SWT.BORDER | SWT.READ_ONLY );
-		text.setText( "The image name" );
+		text.setText( "The imagesList name" );
 		layoutData = new GridData( GridData.FILL_HORIZONTAL );
 		layoutData.verticalIndent = 20;
 		text.setLayoutData( layoutData );

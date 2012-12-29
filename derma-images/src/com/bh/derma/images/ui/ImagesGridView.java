@@ -1,27 +1,40 @@
 package com.bh.derma.images.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+
+import com.bh.derma.images.internal.Activator;
+import com.bh.derma.images.ui.model.ThumbnailWidget;
 
 public class ImagesGridView extends ViewPart {
 
 	public static final String ID = "com.bh.derma.images.ui.ImagesGridView"; //$NON-NLS-1$
 	private Composite thumbnailGridComposite;
 	private ScrolledComposite thumbnailGridScrolledComposite;
+	
+	NewPatientVisitView newPatientVisitView =
+			(NewPatientVisitView) Activator.getView(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+										   			  NewPatientVisitView.ID);
 
 	public Composite getThumbnailGridComposite() {
 		return thumbnailGridComposite;
@@ -64,9 +77,6 @@ public class ImagesGridView extends ViewPart {
 		thumbnailGridCompositeGD.horizontalSpan=2;
 		thumbnailGridComposite.setLayoutData(thumbnailGridCompositeGD);
 		
-//		Label imageLabel1 = new Label(thumbnailGridComposite, SWT.BORDER);
-//		imageLabel1.setImage(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\Photo-ID.png"));
-		
 		Point size = thumbnailGridComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		thumbnailGridScrolledComposite.setMinSize(size);
 		
@@ -83,21 +93,43 @@ public class ImagesGridView extends ViewPart {
 			}
 		});
 		
-//		thumbnailGridScrolledComposite.addMouseWheelListener(new MouseWheelListener() {
-//			@Override
-//			public void mouseScrolled(MouseEvent e) {
-//				thumbnailGridScrolledComposite.setFocus();
-//			}
-//		});
-		
-		Button btnNewButton = new Button(thumbnailComposite, SWT.NONE);
-		btnNewButton.addSelectionListener(new SelectionAdapter() {
+		Button btnCompareSelected = new Button(thumbnailComposite, SWT.NONE);
+		btnCompareSelected.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				List<String> selectedPhotosFilesList = newPatientVisitView.getSelectedPhotosFilesList();
+				if(selectedPhotosFilesList.size() > 0) {
+					List<Image> selectedImagesList = new ArrayList<Image>();
+					for(String selectedPhotosFile : selectedPhotosFilesList) {
+						Image image = new Image(Display.getDefault(), selectedPhotosFile);
+						selectedImagesList.add(image);
+					}
+					Image[] images = selectedImagesList.toArray(new Image[selectedImagesList.size()]);
+					Dialog dialog = new OriginalSizeImageDialog(
+							Display.getDefault().getActiveShell(), images);
+					dialog.open();
+				}
 			}
 		});
-		btnNewButton.setBounds(22, 657, 108, 25);
-		btnNewButton.setText("Compare Selected");
+		btnCompareSelected.setBounds(22, 657, 108, 25);
+		btnCompareSelected.setText("Compare Selected");
+		
+		Button btnDeSelectAll = new Button(thumbnailComposite, SWT.NONE);
+		btnDeSelectAll.setBounds(22, 700, 108, 25);
+		btnDeSelectAll.setText("Deselect All");
+		btnDeSelectAll.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				List<ThumbnailWidget> thumbnailWidgetList = newPatientVisitView.getThumbnailWidgetList();
+				for(ThumbnailWidget thumbnailWidget : thumbnailWidgetList) {
+					 Button checkBox = thumbnailWidget.getCheckBox();
+					 if(checkBox.getSelection()) {
+						 checkBox.setSelection(false);
+					 }
+				}
+				newPatientVisitView.getSelectedPhotosFilesList().clear();
+			}
+		});
 
 		createActions();
 		initializeToolBar();
