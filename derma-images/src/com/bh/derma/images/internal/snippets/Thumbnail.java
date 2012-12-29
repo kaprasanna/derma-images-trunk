@@ -1,6 +1,7 @@
 package com.bh.derma.images.internal.snippets;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -15,9 +16,9 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
@@ -43,9 +44,12 @@ public class Thumbnail {
 		final String [] path = new String [] {"C:/Users/pk022878/Pictures/From Prasanna-HTC/Saved pictures"};
 		button.addListener (SWT.Selection, new Listener () {
 			public void handleEvent (Event e) {
-				DirectoryDialog dialog = new DirectoryDialog (shell);
+				FileDialog dialog = new FileDialog (shell, SWT.OPEN | SWT.MULTI);
 				dialog.setFilterPath (path [0]);
-//				if (dialog.open () == null) return;
+				String selection = dialog.open();
+				System.out.println("selection : " + selection);
+				System.out.println(Arrays.toString(dialog.getFileNames()));
+				if (selection == null) return;
 				Control [] children = comp.getChildren ();
 				for (int i=0; i<children.length; i++) {
 					children [i].dispose ();

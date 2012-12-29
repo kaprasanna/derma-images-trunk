@@ -4,30 +4,31 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.part.ViewPart;
 
 public class ImagesGridView extends ViewPart {
 
 	public static final String ID = "com.bh.derma.images.ui.ImagesGridView"; //$NON-NLS-1$
 	private Composite thumbnailGridComposite;
-	private ScrolledComposite viewerScrolledComposite;
+	private ScrolledComposite thumbnailGridScrolledComposite;
 
 	public Composite getThumbnailGridComposite() {
 		return thumbnailGridComposite;
 	}
 	
 	public ScrolledComposite getViewerScrolledComposite() {
-		return viewerScrolledComposite;
+		return thumbnailGridScrolledComposite;
 	}
 	
 	public ImagesGridView() {
@@ -47,16 +48,16 @@ public class ImagesGridView extends ViewPart {
 		thumbnailComposite.setLayoutData(viewerCompositeData);
 		thumbnailComposite.setSize(thumbnailComposite.computeSize(parent.getSize().x, SWT.DEFAULT));
 		
-		viewerScrolledComposite = new ScrolledComposite(
+		thumbnailGridScrolledComposite = new ScrolledComposite(
 									thumbnailComposite, SWT.H_SCROLL | SWT.V_SCROLL);
-		viewerScrolledComposite.setExpandHorizontal(true);
-		viewerScrolledComposite.setExpandVertical(true);
+		thumbnailGridScrolledComposite.setExpandHorizontal(true);
+		thumbnailGridScrolledComposite.setExpandVertical(true);
 		GridData data = new GridData(GridData.GRAB_HORIZONTAL | GridData.FILL_BOTH);
 		data.horizontalSpan = 2;
-		viewerScrolledComposite.setLayoutData(data);
-		viewerScrolledComposite.setSize(viewerScrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		thumbnailGridScrolledComposite.setLayoutData(data);
+		thumbnailGridScrolledComposite.setSize(thumbnailGridScrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
-		thumbnailGridComposite = new Composite(viewerScrolledComposite, SWT.BORDER);
+		thumbnailGridComposite = new Composite(thumbnailGridScrolledComposite, SWT.BORDER);
 		GridLayout thumbnailGridCompositeGL = new GridLayout(3, false);
 		thumbnailGridComposite.setLayout(thumbnailGridCompositeGL);
 		GridData thumbnailGridCompositeGD = new GridData(GridData.FILL_BOTH);
@@ -67,14 +68,27 @@ public class ImagesGridView extends ViewPart {
 //		imageLabel1.setImage(new Image(Display.getDefault(), "C:\\Users\\pk022878\\Pictures\\Photo-ID.png"));
 		
 		Point size = thumbnailGridComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		viewerScrolledComposite.setMinSize(size);
+		thumbnailGridScrolledComposite.setMinSize(size);
 		
-		viewerScrolledComposite.setContent(thumbnailGridComposite);
-		viewerScrolledComposite.layout(true);
+		thumbnailGridScrolledComposite.setContent(thumbnailGridComposite);
+		thumbnailGridScrolledComposite.layout(true);
 		
 		Button btnRemoveSelected = new Button(thumbnailComposite, SWT.NONE);
 		btnRemoveSelected.setBounds(22, 618, 108, 25);
 		btnRemoveSelected.setText("Remove Selected");
+		
+		thumbnailGridScrolledComposite.addListener(SWT.Activate, new Listener() {
+			public void handleEvent(Event e) {
+				thumbnailGridScrolledComposite.setFocus();
+			}
+		});
+		
+//		thumbnailGridScrolledComposite.addMouseWheelListener(new MouseWheelListener() {
+//			@Override
+//			public void mouseScrolled(MouseEvent e) {
+//				thumbnailGridScrolledComposite.setFocus();
+//			}
+//		});
 		
 		Button btnNewButton = new Button(thumbnailComposite, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
