@@ -1,11 +1,20 @@
 package com.bh.derma.images.ui;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -13,12 +22,15 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
+import com.bh.derma.images.ui.util.ImageMergerUtility;
 
 class OriginalSizeImageDialog extends Dialog {
 	private Image[] images;
+	private int numberofColumns;
 	protected OriginalSizeImageDialog(Shell parentShell, Image[] images) {
 		super(parentShell);
 		this.images = images;
@@ -42,7 +54,7 @@ class OriginalSizeImageDialog extends Dialog {
 		scrolledComposite.setLayoutData(scrolledCompositeGD);
 		scrolledComposite.setSize(scrolledComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
-		Composite imagesComposite = new Composite(scrolledComposite, SWT.BORDER);
+		imagesComposite = new Composite(scrolledComposite, SWT.BORDER);
 		GridLayout imageCompositeGL = new GridLayout(1, false);
 		imagesComposite.setLayout(imageCompositeGL);
 		GridData imageCompositeGD = new GridData(GridData.FILL_BOTH);
@@ -51,8 +63,8 @@ class OriginalSizeImageDialog extends Dialog {
 		int numberOfImages = images.length;
 		if(numberOfImages > 1) {
 			int possibleNumberOfImages = 0;
-			int numberofColumns = 0;
-			int numberOfRows = 0;
+			numberofColumns = 0;
+			numberOfRows = 0;
 			if(numberOfImages % 2 != 0) {
 				possibleNumberOfImages = numberOfImages + 1;
 				numberOfRows = 2;
@@ -92,7 +104,8 @@ class OriginalSizeImageDialog extends Dialog {
 					}
 				});
 				ResizeImageListener comp1Listener = new ResizeImageListener(
-						image, imageComposite, widthofEachImage, heightOfEachImage, false);
+						image, imageComposite, widthofEachImage, heightOfEachImage, true);
+//				ResizeImageListener comp1Listener = new ResizeImageListener(image, imageComposite, true);
 				imageComposite.addListener (SWT.Dispose, comp1Listener);
 				imageComposite.addListener (SWT.Paint, comp1Listener);
 			}
@@ -113,6 +126,173 @@ class OriginalSizeImageDialog extends Dialog {
 	@Override
 	protected Button createButton(Composite parent, int id, String label,
 			boolean defaultButton) {
-		return null;
+		return super.createButton(parent, id, label, defaultButton);
+	}
+	
+	Map<Integer, Image[]> imagesInRowsMap;
+	private int numberOfRows;
+	private Composite imagesComposite;
+	
+	@Override
+	protected void okPressed() {
+		imagesInRowsMap = new HashMap<Integer, Image[]>();
+		
+		final FileDialog dialog = new FileDialog (getShell(), SWT.SAVE);
+		dialog.setFileName("merged.jpg");
+		dialog.setFilterExtensions(new String[] {"*.jpg"});
+		
+		final String exportompareResultToFilePath = dialog.open();
+		
+		// create merged file.
+		
+		// split images array into arrays each of size equal to number of columns; put them all in a list 
+		int counter = 0;
+		for(int row = 0; row < numberOfRows; row++) {
+			Image[] imagesForCurrentRow = Arrays.copyOfRange(images, counter, counter + numberofColumns);
+			counter += numberofColumns;
+			imagesInRowsMap.put(row, imagesForCurrentRow);
+		}
+		
+		Map<Integer, ImageData> imageDataPerRow = new HashMap<Integer, ImageData>();
+		
+		for(int row = 0; row < numberOfRows; row++) {
+			Image[] imagesInRow = imagesInRowsMap.get(row);
+			ImageData targetDataForCurrentRow = null;
+			for(Image[] currentRowImages : getArrays(imagesInRow, 2)) {
+				ImageData sourceData1 = null;
+				ImageData sourceData2 = null;
+				ImageData targetData1 = null;
+
+				if(currentRowImages[0] != null && currentRowImages[1] != null) {
+					sourceData1 = currentRowImages[0].getImageData();
+					sourceData2 = currentRowImages[1].getImageData();
+					
+					try {
+						targetData1 = ImageMergerUtility.merge(sourceData1, sourceData2, ImageMergerUtility.HORIZONTAL);
+					} catch (Exception e) {
+						MessageDialog.openError(getShell(), "Merge Pictures", "Could not merge");
+						e.printStackTrace();
+						return;
+					}
+					
+					if(targetDataForCurrentRow != null) {					
+						targetDataForCurrentRow = ImageMergerUtility.merge(targetDataForCurrentRow, targetData1, ImageMergerUtility.HORIZONTAL);
+					} else {
+						targetDataForCurrentRow = targetData1;
+					}
+				}
+				if(currentRowImages[0] == null || currentRowImages[1] == null) {
+					if(currentRowImages[0] != null && currentRowImages[1] == null) {
+						sourceData1 = currentRowImages[0].getImageData();
+						if(targetDataForCurrentRow != null) {
+							targetDataForCurrentRow = ImageMergerUtility.merge(targetDataForCurrentRow, sourceData1, ImageMergerUtility.HORIZONTAL);
+						} else {
+							// only one image?
+							targetDataForCurrentRow = sourceData1;
+						}
+					} else if(currentRowImages[0] == null && currentRowImages[1] != null) {
+						// should never happen ideally
+						sourceData2 = currentRowImages[1].getImageData();
+						if(targetDataForCurrentRow != null) {
+							targetDataForCurrentRow = ImageMergerUtility.merge(targetDataForCurrentRow, sourceData2, ImageMergerUtility.HORIZONTAL);
+						} else {
+							// only one image?
+							targetDataForCurrentRow = sourceData2;
+						}
+					}
+				}
+			}
+			imageDataPerRow.put(row, targetDataForCurrentRow);
+		}
+
+		ImageData[] imageDataArray = new ImageData[imageDataPerRow.values().size()];
+		imageDataPerRow.values().toArray(imageDataArray);
+		
+		ImageData targetData = null;
+		if(numberOfRows > 1) {
+			for(ImageData[] currentRowImageData : getImageDataArrays(imageDataArray, 2)) {
+				ImageData sourceData1 = null;
+				ImageData sourceData2 = null;
+				ImageData targetData1 = null;
+
+				if(currentRowImageData[0] != null && currentRowImageData[1] != null) {
+					sourceData1 = currentRowImageData[0];
+					sourceData2 = currentRowImageData[1];
+				}
+				boolean update = true;
+
+				if(currentRowImageData[0] == null || currentRowImageData[1] == null) {
+					if(currentRowImageData[0] != null && currentRowImageData[1] == null) {
+						sourceData1 = currentRowImageData[0];
+						if(targetData != null) {
+							sourceData2 = targetData;
+							update = false;
+						} else {
+							// only one image?
+							targetData = sourceData2;
+						}
+					} else if(currentRowImageData[0] == null && currentRowImageData[1] != null) {
+						// should never happen ideally
+						sourceData2 = currentRowImageData[1];
+						if(targetData != null) {
+							sourceData1 = targetData;
+							update = false;
+						} else {
+							// only one image?
+							targetData = sourceData1;
+						}
+					}
+				}
+				if(sourceData1 != null && sourceData2 != null) {
+					targetData1 = ImageMergerUtility.merge(sourceData1, sourceData2, ImageMergerUtility.VERTICAL);
+					if(targetData != null && update) {					
+						targetData = ImageMergerUtility.merge(targetData, targetData1, ImageMergerUtility.VERTICAL);
+					} else {
+						targetData = targetData1;
+					}
+				}
+			}
+		} else {
+			targetData = imageDataPerRow.get(0);
+		}
+		
+		if(targetData != null) {
+			ImageLoader imageLoader = new ImageLoader();
+			imageLoader.data = new ImageData[] { targetData };
+			imageLoader.save(exportompareResultToFilePath, SWT.IMAGE_JPEG);
+		} else {
+			MessageDialog.openError(getShell(), "Merge Pictures", "Could not merge");
+		}
+		super.okPressed();
+	}
+	
+	private static List<Image[]> getArrays(Image[] imagesInRow, int splitBy) {
+		List<Image[]> listofArrays = new ArrayList<Image[]>();
+		for(int i = 0; i < imagesInRow.length; i+=splitBy) {
+			Image[] newArray = new Image[splitBy];
+			for(int j = 0, k = i; j < splitBy; j++, k++) {
+				if(k < imagesInRow.length)
+					newArray[j] = imagesInRow[k];
+				else
+					newArray[j] = null;
+			}
+			listofArrays.add(newArray);
+		}
+		return listofArrays;
+	}
+	
+	private static List<ImageData[]> getImageDataArrays(ImageData[] imagesInRow, int splitBy) {
+		List<ImageData[]> listofArrays = new ArrayList<ImageData[]>();
+		for(int i = 0; i < imagesInRow.length; i+=splitBy) {
+			ImageData[] newArray = new ImageData[splitBy];
+			for(int j = 0, k = i; j < splitBy; j++, k++) {
+				if(k < imagesInRow.length)
+					newArray[j] = imagesInRow[k];
+				else
+					newArray[j] = null;
+			}
+			listofArrays.add(newArray);
+		}
+		return listofArrays;
 	}
 }

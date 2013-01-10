@@ -11,6 +11,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -19,11 +20,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bh.derma.images.internal.Activator;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
+import com.bh.derma.images.ui.util.ImageMergerUtility;
 
 public class ImagesGridView extends ViewPart {
 
@@ -87,6 +92,12 @@ public class ImagesGridView extends ViewPart {
 		btnRemoveSelected.setBounds(22, 618, 108, 25);
 		btnRemoveSelected.setText("Remove Selected");
 		
+		btnRemoveSelected.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+			}
+		});
+		
 		thumbnailGridScrolledComposite.addListener(SWT.Activate, new Listener() {
 			public void handleEvent(Event e) {
 				thumbnailGridScrolledComposite.setFocus();
@@ -95,8 +106,16 @@ public class ImagesGridView extends ViewPart {
 		
 		Button btnCompareSelected = new Button(thumbnailComposite, SWT.NONE);
 		btnCompareSelected.addSelectionListener(new SelectionAdapter() {
+			@SuppressWarnings("restriction")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+//				try {
+//					IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("some.some.some", null, IWorkbenchPage.VIEW_ACTIVATE);
+//					view.setFocus();
+//				} catch (PartInitException e1) {
+//					e1.printStackTrace();
+//				}
+				
 				List<String> selectedPhotosFilesList = newPatientVisitView.getSelectedPhotosFilesList();
 				if(selectedPhotosFilesList.size() > 0) {
 					List<Image> selectedImagesList = new ArrayList<Image>();
