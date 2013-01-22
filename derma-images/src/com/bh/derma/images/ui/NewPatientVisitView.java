@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
@@ -52,6 +53,7 @@ public class NewPatientVisitView extends ViewPart {
 	private List<String> loadedPhotosList;
 	private List<String> selectedPhotosFilesList;
 	private List<ThumbnailWidget> thumbnailWidgetList;
+	private ScrolledComposite scrolledComposite;
 
 	public NewPatientVisitView() {
 	}
@@ -70,7 +72,7 @@ public class NewPatientVisitView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		ScrolledComposite scrolledComposite = new ScrolledComposite(
+		scrolledComposite = new ScrolledComposite(
 				parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
 		scrolledComposite.setExpandVertical(true);
@@ -146,8 +148,16 @@ public class NewPatientVisitView extends ViewPart {
 		lblVisitDate.setBounds(10, 60, 55, 15);
 		lblVisitDate.setText("Visit Date");
 		
-		DateTime dateTime = new DateTime(grpNewVisit, SWT.BORDER);
-		dateTime.setBounds(107, 51, 308, 24);
+		DateTime dateTimeDate = new DateTime(grpNewVisit, SWT.BORDER | SWT.DATE);
+		dateTimeDate.setBounds(107, 60, 100, 24);
+
+		Label lblVisitTime = new Label(grpNewVisit, SWT.NONE);
+		lblVisitTime.setBounds(207, 60, 55, 15);
+		lblVisitTime.setText("Visit Time");
+		
+		DateTime dateTimeTime = new DateTime(grpNewVisit, SWT.BORDER | SWT.TIME);
+		dateTimeTime.setBounds(262, 60, 100, 24);
+		
 		
 		Label lblNotes = new Label(grpNewVisit, SWT.NONE);
 		lblNotes.setBounds(10, 104, 55, 15);
@@ -331,6 +341,12 @@ public class NewPatientVisitView extends ViewPart {
 					thumbnailGridScrolledComposite.setContent(thumbnailGridComposite);
 					thumbnailGridScrolledComposite.layout(true);
 				}
+				// show image grid view
+				try {
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ImagesGridView.ID);
+				} catch (PartInitException e1) {
+					e1.printStackTrace();
+				}
 			}
 			
 			@Override
@@ -390,6 +406,7 @@ public class NewPatientVisitView extends ViewPart {
 	 * Initialize the toolbar.
 	 */
 	private void initializeToolBar() {
+		@SuppressWarnings("unused")
 		IToolBarManager toolbarManager = getViewSite().getActionBars()
 				.getToolBarManager();
 	}
@@ -398,6 +415,7 @@ public class NewPatientVisitView extends ViewPart {
 	 * Initialize the menu.
 	 */
 	private void initializeMenu() {
+		@SuppressWarnings("unused")
 		IMenuManager menuManager = getViewSite().getActionBars()
 				.getMenuManager();
 	}
@@ -405,6 +423,7 @@ public class NewPatientVisitView extends ViewPart {
 	@Override
 	public void setFocus() {
 		// Set the focus
+		scrolledComposite.setFocus();
 	}
 	
 	public void showMessage(String message) {

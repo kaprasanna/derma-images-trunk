@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-class ResizeImageListener implements Listener {
+public class ResizeImageListener implements Listener {
 	Image image;
 	Composite c;
 	int width;

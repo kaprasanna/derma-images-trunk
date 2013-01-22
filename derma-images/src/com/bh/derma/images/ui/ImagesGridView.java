@@ -5,30 +5,27 @@ import java.util.List;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bh.derma.images.internal.Activator;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
-import com.bh.derma.images.ui.util.ImageMergerUtility;
+import com.bh.derma.images.ui.util.StateFields;
+import com.bh.derma.images.ui.util.Util;
 
 public class ImagesGridView extends ViewPart {
 
@@ -92,12 +89,6 @@ public class ImagesGridView extends ViewPart {
 		btnRemoveSelected.setBounds(22, 618, 108, 25);
 		btnRemoveSelected.setText("Remove Selected");
 		
-		btnRemoveSelected.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-			}
-		});
-		
 		thumbnailGridScrolledComposite.addListener(SWT.Activate, new Listener() {
 			public void handleEvent(Event e) {
 				thumbnailGridScrolledComposite.setFocus();
@@ -106,28 +97,42 @@ public class ImagesGridView extends ViewPart {
 		
 		Button btnCompareSelected = new Button(thumbnailComposite, SWT.NONE);
 		btnCompareSelected.addSelectionListener(new SelectionAdapter() {
-			@SuppressWarnings("restriction")
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-//				try {
-//					IViewPart view = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("some.some.some", null, IWorkbenchPage.VIEW_ACTIVATE);
-//					view.setFocus();
-//				} catch (PartInitException e1) {
-//					e1.printStackTrace();
-//				}
-				
 				List<String> selectedPhotosFilesList = newPatientVisitView.getSelectedPhotosFilesList();
-				if(selectedPhotosFilesList.size() > 0) {
-					List<Image> selectedImagesList = new ArrayList<Image>();
-					for(String selectedPhotosFile : selectedPhotosFilesList) {
-						Image image = new Image(Display.getDefault(), selectedPhotosFile);
-						selectedImagesList.add(image);
+				if(selectedPhotosFilesList != null && (selectedPhotosFilesList.size() > 0)) {
+					Image[] images = Util.imageFilesToImages(selectedPhotosFilesList);
+					
+					CompareResultsView compareResultsView = Util.getCompareResultsView();
+					
+					if(compareResultsView == null) {
+						// TODO log
+						return;
 					}
-					Image[] images = selectedImagesList.toArray(new Image[selectedImagesList.size()]);
-					Dialog dialog = new OriginalSizeImageDialog(
-							Display.getDefault().getActiveShell(), images);
-					dialog.open();
+					
+					compareResultsView.setImages(images);
+					
+					// clear existing compare results
+					Composite compareResultsComposite = compareResultsView.getThumbnailGridComposite();
+					for(Control control : compareResultsComposite.getChildren()) {
+						control.dispose();
+					}
+
+					compareResultsView.populateCompareResultsComposite();
+					
+					try {
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().
+								getActivePage().showView(CompareResultsView.ID);
+					} catch (PartInitException e1) {
+						e1.printStackTrace();
+					}
+					
+					// cache. Remove references so that comparison happens only when pressed compare button.
+					List<String> selectedPhotosFilesListToCache = new ArrayList<String>();
+					selectedPhotosFilesListToCache.addAll(selectedPhotosFilesList);
+					StateFields.getInstance().setSelectedPhotosFilesList(selectedPhotosFilesListToCache);
 				}
+				
 			}
 		});
 		btnCompareSelected.setBounds(22, 657, 108, 25);
@@ -163,17 +168,19 @@ public class ImagesGridView extends ViewPart {
 	}
 
 	/**
-	 * Initialize the toolbar.
+	 * Initialise the toolbar.
 	 */
 	private void initializeToolBar() {
+		@SuppressWarnings("unused")
 		IToolBarManager toolbarManager = getViewSite().getActionBars()
 				.getToolBarManager();
 	}
 
 	/**
-	 * Initialize the menu.
+	 * Initialise the menu.
 	 */
 	private void initializeMenu() {
+		@SuppressWarnings("unused")
 		IMenuManager menuManager = getViewSite().getActionBars()
 				.getMenuManager();
 	}

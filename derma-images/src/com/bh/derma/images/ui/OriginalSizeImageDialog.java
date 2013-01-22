@@ -1,9 +1,7 @@
 package com.bh.derma.images.ui;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -27,11 +25,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.bh.derma.images.ui.util.ImageMergerUtility;
+import com.bh.derma.images.ui.util.Util;
 
-class OriginalSizeImageDialog extends Dialog {
+public class OriginalSizeImageDialog extends Dialog {
 	private Image[] images;
 	private int numberofColumns;
-	protected OriginalSizeImageDialog(Shell parentShell, Image[] images) {
+	public OriginalSizeImageDialog(Shell parentShell, Image[] images) {
 		super(parentShell);
 		this.images = images;
 	}
@@ -104,8 +103,7 @@ class OriginalSizeImageDialog extends Dialog {
 					}
 				});
 				ResizeImageListener comp1Listener = new ResizeImageListener(
-						image, imageComposite, widthofEachImage, heightOfEachImage, true);
-//				ResizeImageListener comp1Listener = new ResizeImageListener(image, imageComposite, true);
+						image, imageComposite, widthofEachImage, heightOfEachImage, false);
 				imageComposite.addListener (SWT.Dispose, comp1Listener);
 				imageComposite.addListener (SWT.Paint, comp1Listener);
 			}
@@ -123,11 +121,11 @@ class OriginalSizeImageDialog extends Dialog {
 		return imageBaseComposite;
 	}
 	
-	@Override
-	protected Button createButton(Composite parent, int id, String label,
-			boolean defaultButton) {
-		return super.createButton(parent, id, label, defaultButton);
-	}
+//	@Override
+//	protected Button createButton(Composite parent, int id, String label,
+//			boolean defaultButton) {
+//		return super.createButton(parent, id, label, defaultButton);
+//	}
 	
 	Map<Integer, Image[]> imagesInRowsMap;
 	private int numberOfRows;
@@ -158,7 +156,7 @@ class OriginalSizeImageDialog extends Dialog {
 		for(int row = 0; row < numberOfRows; row++) {
 			Image[] imagesInRow = imagesInRowsMap.get(row);
 			ImageData targetDataForCurrentRow = null;
-			for(Image[] currentRowImages : getArrays(imagesInRow, 2)) {
+			for(Image[] currentRowImages : Util.getArrays(imagesInRow, 2)) {
 				ImageData sourceData1 = null;
 				ImageData sourceData2 = null;
 				ImageData targetData1 = null;
@@ -210,7 +208,7 @@ class OriginalSizeImageDialog extends Dialog {
 		
 		ImageData targetData = null;
 		if(numberOfRows > 1) {
-			for(ImageData[] currentRowImageData : getImageDataArrays(imageDataArray, 2)) {
+			for(ImageData[] currentRowImageData : Util.getImageDataArrays(imageDataArray, 2)) {
 				ImageData sourceData1 = null;
 				ImageData sourceData2 = null;
 				ImageData targetData1 = null;
@@ -263,36 +261,6 @@ class OriginalSizeImageDialog extends Dialog {
 		} else {
 			MessageDialog.openError(getShell(), "Merge Pictures", "Could not merge");
 		}
-		super.okPressed();
-	}
-	
-	private static List<Image[]> getArrays(Image[] imagesInRow, int splitBy) {
-		List<Image[]> listofArrays = new ArrayList<Image[]>();
-		for(int i = 0; i < imagesInRow.length; i+=splitBy) {
-			Image[] newArray = new Image[splitBy];
-			for(int j = 0, k = i; j < splitBy; j++, k++) {
-				if(k < imagesInRow.length)
-					newArray[j] = imagesInRow[k];
-				else
-					newArray[j] = null;
-			}
-			listofArrays.add(newArray);
-		}
-		return listofArrays;
-	}
-	
-	private static List<ImageData[]> getImageDataArrays(ImageData[] imagesInRow, int splitBy) {
-		List<ImageData[]> listofArrays = new ArrayList<ImageData[]>();
-		for(int i = 0; i < imagesInRow.length; i+=splitBy) {
-			ImageData[] newArray = new ImageData[splitBy];
-			for(int j = 0, k = i; j < splitBy; j++, k++) {
-				if(k < imagesInRow.length)
-					newArray[j] = imagesInRow[k];
-				else
-					newArray[j] = null;
-			}
-			listofArrays.add(newArray);
-		}
-		return listofArrays;
+//		super.okPressed();
 	}
 }

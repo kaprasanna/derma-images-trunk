@@ -5,7 +5,8 @@
    <extension
          id="application"
          point="org.eclipse.core.runtime.applications">
-      <application>
+      <application
+            icon="icons/derm_images_16_by_16.png">
          <run
                class="com.bh.derma.images.platform.Application">
          </run>
@@ -23,14 +24,64 @@
          point="org.eclipse.ui.views">
       <view
             class="com.bh.derma.images.ui.NewPatientVisitView"
+            icon="icons/new_patient_16_by_16.png"
             id="com.bh.derma.images.ui.NewPatientVisitView"
             name="Patient and Visits">
       </view>
       <view
             class="com.bh.derma.images.ui.ImagesGridView"
+            icon="icons/images_grid_black_squares_16_by_16.png"
             id="com.bh.derma.images.ui.ImagesGridView"
             name="Images">
       </view>
+      <view
+            class="com.bh.derma.images.ui.CompareResultsView"
+            icon="icons/compare_16_by_16.png"
+            id="com.bh.derma.images.ui.CompareResultsView"
+            name="Compare results">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+          <menu
+            label="File">
+            <command
+                  commandId="derma-images.commands.export.compare.results.command"
+                  label="Export..."
+                  style="push">
+            </command>
+            <separator
+                  name="derma-images.separator1"
+                  visible="true">
+            </separator>
+            <command
+              commandId="org.eclipse.ui.file.exit"
+              label="Exit"
+              style="push">
+        	</command>
+          </menu>
+          <menu
+                label="&amp;Window">
+             <command
+                   commandId="org.eclipse.ui.views.showView"
+                   label="Show View"
+                   style="push">
+             </command>
+          </menu> 
+      </menuContribution>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+         <command
+         name="Export..."
+               id="derma-images.commands.export.compare.results.command">
+               <defaultHandler
+                     class="com.bh.derma.images.commands.handlers.ExportCompareResultsHandler">
+               </defaultHandler>
+         </command>
    </extension>
 
 </plugin>
