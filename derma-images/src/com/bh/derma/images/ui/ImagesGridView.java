@@ -33,10 +33,10 @@ public class ImagesGridView extends ViewPart {
 	private Composite thumbnailGridComposite;
 	private ScrolledComposite thumbnailGridScrolledComposite;
 	
-	NewPatientVisitView newPatientVisitView =
-			(NewPatientVisitView) Activator.getView(
+	NewPatientView newPatientVisitView =
+			(NewPatientView) Activator.getView(
 					PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
-										   			  NewPatientVisitView.ID);
+					NewPatientView.ID);
 
 	public Composite getThumbnailGridComposite() {
 		return thumbnailGridComposite;

@@ -1,4 +1,4 @@
-package com.bh.derma.images.ui;
+package com.bh.derma.images.internal.snippets;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,7 +38,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bh.derma.images.internal.Activator;
+import com.bh.derma.images.ui.ImagesGridView;
+import com.bh.derma.images.ui.OriginalSizeImageDialog;
+import com.bh.derma.images.ui.ResizeImageListener;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
+import com.bh.derma.images.ui.util.Util;
 
 public class NewPatientVisitView extends ViewPart {
 
@@ -71,7 +75,7 @@ public class NewPatientVisitView extends ViewPart {
 	 * @param parent
 	 */
 	@Override
-	public void createPartControl(Composite parent) {
+	public void createPartControl(final Composite parent) {
 		scrolledComposite = new ScrolledComposite(
 				parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setExpandHorizontal(true);
@@ -219,6 +223,7 @@ public class NewPatientVisitView extends ViewPart {
 		btnLoad.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				Util.showMessage("" + parent.getBounds().width + ", " + parent.getBounds().height);
 				if(selectedPhotosFilesList == null) {
 					selectedPhotosFilesList = new ArrayList<String>();
 				} else {

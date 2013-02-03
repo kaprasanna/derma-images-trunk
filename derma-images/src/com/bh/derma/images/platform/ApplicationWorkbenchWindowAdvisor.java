@@ -40,8 +40,8 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
     @Override
     public void postWindowCreate() {
     	Display display = getWindowConfigurer().getWindow().getWorkbench().getDisplay();
+    	Shell shell = getWindowConfigurer().getWindow().getShell();
     	if(display.getMonitors().length > 0) {
-    		Shell shell = getWindowConfigurer().getWindow().getShell();
     		
     		Monitor[] monitors = display.getMonitors();
     		for(Monitor monitor : monitors) {
@@ -49,11 +49,11 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
     				Rectangle bounds = monitor.getBounds();
     				shell.setSize(bounds.width, bounds.height);
     				shell.setLocation(bounds.x, bounds.y);
-    				shell.setMaximized(true);
     			}
     		}
     	} else {
     		super.postWindowCreate();
     	}    	
+    	shell.setMaximized(true);
     }
 }

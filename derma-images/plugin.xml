@@ -23,12 +23,6 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="com.bh.derma.images.ui.NewPatientVisitView"
-            icon="icons/new_patient_16_by_16.png"
-            id="com.bh.derma.images.ui.NewPatientVisitView"
-            name="Patient and Visits">
-      </view>
-      <view
             class="com.bh.derma.images.ui.ImagesGridView"
             icon="icons/images_grid_black_squares_16_by_16.png"
             id="com.bh.derma.images.ui.ImagesGridView"
@@ -39,6 +33,13 @@
             icon="icons/compare_16_by_16.png"
             id="com.bh.derma.images.ui.CompareResultsView"
             name="Compare results">
+      </view>
+      <view
+            class="com.bh.derma.images.ui.NewPatientView"
+            icon="icons/new_patient_16_by_16.png"
+            id="com.bh.derma.images.ui.NewPatientView"
+            name="New Patient"
+            restorable="true">
       </view>
    </extension>
    <extension
@@ -71,6 +72,16 @@
              </command>
           </menu> 
       </menuContribution>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.services">
+      		<serviceFactory
+            	factoryClass="com.bh.derma.images.service.PatientServiceFactory">
+		         <service
+		               serviceClass="com.bh.derma.images.service.IPatientService">
+		         </service>
+      </serviceFactory>
    </extension>
    
    <extension
