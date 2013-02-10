@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Derma-images-model
+Bundle-SymbolicName: derma-images-model
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: derma_images_model.Activator
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.bh.derma.images.model,
+ com.bh.derma.images.service
