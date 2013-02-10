@@ -1,4 +1,7 @@
-package com.bh.derma.images.model;
+package com.bh.derma.images.impl;
+
+import com.bh.derma.images.model.IPatient;
+import com.bh.derma.images.model.IStudy;
 
 public class Patient implements IPatient {
 	private String id;

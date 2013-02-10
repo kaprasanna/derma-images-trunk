@@ -1,6 +1,9 @@
-package com.bh.derma.images.model;
+package com.bh.derma.images.impl;
 
 import java.util.Date;
+
+import com.bh.derma.images.model.ISeries;
+import com.bh.derma.images.model.IStudy;
 
 public class Study implements IStudy {
 	private Integer numberOfSeries;	

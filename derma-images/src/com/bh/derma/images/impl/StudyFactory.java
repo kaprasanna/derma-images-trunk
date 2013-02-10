@@ -1,4 +1,6 @@
-package com.bh.derma.images.model;
+package com.bh.derma.images.impl;
+
+import com.bh.derma.images.model.IStudy;
 
 public class StudyFactory {
 	private static StudyFactory INSTANCE = null;

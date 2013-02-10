@@ -70,11 +70,19 @@
                    label="Show View"
                    style="push">
              </command>
+          </menu>
+          <menu
+                label="Edit">
+             <command
+                   commandId="org.eclipse.ui.window.preferences"
+                   label="Preferences"
+                   style="push">
+             </command>
           </menu> 
       </menuContribution>
    </extension>
    
-   <extension
+   <!--extension
          point="org.eclipse.ui.services">
       		<serviceFactory
             	factoryClass="com.bh.derma.images.service.PatientServiceFactory">
@@ -82,7 +90,7 @@
 		               serviceClass="com.bh.derma.images.service.IPatientService">
 		         </service>
       </serviceFactory>
-   </extension>
+   </extension-->
    
    <extension
          point="org.eclipse.ui.commands">
@@ -93,6 +101,43 @@
                      class="com.bh.derma.images.commands.handlers.ExportCompareResultsHandler">
                </defaultHandler>
          </command>
+         <command
+               defaultHandler="com.bh.derma.images.commands.handlers.ApplyPreferencesHandler"
+               id="derma-images.commands.apply.preference.command"
+               name="name">
+         </command>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="derma-images.application"
+            name="dermImage">
+         <property
+               name="appName"
+               value="dermImage">
+         </property>
+      </product>
+   </extension>
+   <extension
+         id="product1"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="derma-images.application"
+            name="dermImage">
+         <property
+               name="appName"
+               value="dermImage">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.bh.derma.images.preference.DermaImagesPreferencePage"
+            id="derma.images.preferences"
+            name="Derma_Images_Preferences">
+      </page>
    </extension>
 
 </plugin>

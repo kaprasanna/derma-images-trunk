@@ -1,4 +1,6 @@
-package com.bh.derma.images.model;
+package com.bh.derma.images.impl;
+
+import com.bh.derma.images.model.IPatient;
 
 public class PatientFactory {
 	

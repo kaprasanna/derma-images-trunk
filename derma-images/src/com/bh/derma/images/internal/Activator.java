@@ -6,6 +6,9 @@ import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+
+import com.bh.derma.images.service.IPatientService;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -14,9 +17,15 @@ public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "derma-images"; //$NON-NLS-1$
-
+	
+	IPatientService patientService;
+	
 	// The shared instance
 	private static Activator plugin;
+	
+	public IPatientService getPatientService() {
+		return patientService;
+	}
 	
 	/**
 	 * The constructor
@@ -31,6 +40,10 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+//		ServiceTracker tracker = new ServiceTracker(context, IPatientService.class, null);
+//		tracker.open();
+		ServiceReference<IPatientService> patientServiceRef = context.getServiceReference(IPatientService.class);
+		patientService = context.getService(patientServiceRef);
 	}
 
 	/*
@@ -39,7 +52,11 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
-		super.stop(context);
+		try {
+			super.stop(context);
+		} catch (Exception e) {
+			// XXX Log
+		}
 	}
 
 	/**

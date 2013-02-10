@@ -1,6 +1,9 @@
-package com.bh.derma.images.model;
+package com.bh.derma.images.impl;
 
 import java.util.List;
+
+import com.bh.derma.images.model.ISeries;
+import com.bh.derma.images.model.IStudy;
 
 public class Series implements ISeries {
 	private String seriesID;
@@ -79,6 +82,11 @@ public class Series implements ISeries {
 	@Override
 	public void setPhotos(List<Object> photos) {
 		this.photos = photos;
-	}	
+	}
+	
+	@Override
+	public void setParentStudy(IStudy parentStudy) {
+		this.parentStudy = (Study) parentStudy;
+	}
 	
 }

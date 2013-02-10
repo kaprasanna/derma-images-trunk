@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -15,6 +19,8 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -37,7 +43,9 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bh.derma.images.internal.Activator;
+import com.bh.derma.images.service.IPatientService;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
+import com.bh.derma.images.ui.util.Util;
 
 public class NewPatientView extends ViewPart {
 
@@ -62,8 +70,29 @@ public class NewPatientView extends ViewPart {
 	public NewPatientView() {
 	}
 
+	private void setFont(Font font) {
+		for(Control control : newPatientVisitComposite.getChildren()) {
+			control.setFont(font);
+		}
+	}
+	
 	@Override
 	public void createPartControl(Composite parent) {
+		Activator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if(event.getProperty() == "selectedfont") {
+					Util.showMessage(event.getNewValue().getClass().getName());
+					FontData[] fonts = (FontData[]) event.getNewValue();
+
+					Font font = new Font(Display.getDefault(), fonts[0]);
+					
+					setFont(font);
+				}
+			}
+		});
+		
 		final Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout compositeGL = new GridLayout(1, true);
 		composite.setLayout(compositeGL);
@@ -144,13 +173,13 @@ public class NewPatientView extends ViewPart {
 		selectStudyTypeForSearchingComboGD.grabExcessHorizontalSpace = true;
 		selectStudyTypeForSearchingCombo.setLayoutData(selectStudyTypeForSearchingComboGD);
 		
-		final Button btnSave = new Button(newPatientGroup, SWT.NONE);
-		GridData btnSaveGD = new GridData(GridData.FILL_HORIZONTAL);
-		btnSaveGD.horizontalSpan = 1;
-		btnSaveGD.verticalIndent = 5;
-		btnSaveGD.grabExcessHorizontalSpace = true;
-		btnSave.setLayoutData(btnSaveGD);
-		btnSave.setText("Save");
+		final Button buttonSaveSearch = new Button(newPatientGroup, SWT.NONE);
+		GridData buttonSaveSearchGD = new GridData(GridData.FILL_HORIZONTAL);
+		buttonSaveSearchGD.horizontalSpan = 1;
+		buttonSaveSearchGD.verticalIndent = 5;
+		buttonSaveSearchGD.grabExcessHorizontalSpace = true;
+		buttonSaveSearch.setLayoutData(buttonSaveSearchGD);
+		buttonSaveSearch.setText("Save");
 		
 		// search result components
 		TableViewer tableViewer = new TableViewer(newPatientGroup, SWT.BORDER | SWT.FULL_SELECTION);
@@ -320,13 +349,13 @@ public class NewPatientView extends ViewPart {
 		buttonBrowse.setLayoutData(btnBrowseGD);
 		buttonBrowse.setText("Browse");
 
-		final Button btnLoad = new Button(newSeriesGroup, SWT.NONE);
+		final Button buttonLoad = new Button(newSeriesGroup, SWT.NONE);
 		GridData btnLoadGD = new GridData(GridData.FILL_HORIZONTAL);
 		btnLoadGD.horizontalSpan = 1;
 		btnLoadGD.verticalIndent = 5;
 		btnLoadGD.grabExcessHorizontalSpace = true;
-		btnLoad.setLayoutData(btnLoadGD);
-		btnLoad.setText("Load");
+		buttonLoad.setLayoutData(btnLoadGD);
+		buttonLoad.setText("Load");
 		
 		final Button buttnoSaveSeries = new Button(newSeriesGroup, SWT.NONE);
 		GridData btnSaveSeriesGD = new GridData(GridData.FILL_HORIZONTAL);
@@ -382,7 +411,7 @@ public class NewPatientView extends ViewPart {
 		});
 		
 		// load button clicked
-		btnLoad.addSelectionListener(new SelectionAdapter() {
+		buttonLoad.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(selectedPhotosFilesList == null) {
@@ -520,7 +549,7 @@ public class NewPatientView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectStudyTypeForSearchingCombo.setEnabled(false);
-				btnSave.setText("Save");
+				buttonSaveSearch.setText("Save");
 			}
 		});
 		
@@ -529,7 +558,22 @@ public class NewPatientView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectStudyTypeForSearchingCombo.setEnabled(true);
-				btnSave.setText("Search");
+				buttonSaveSearch.setText("Search");
+			}
+		});
+		
+		buttonSaveSearch.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				IPatientService pservice = Activator.getDefault().getPatientService();
+				if(pservice != null) {
+					IStatus status = pservice.saveNewPatient(null);
+					if (status == Status.OK_STATUS) {
+						Util.showMessage("Saved patient.\nOK Status!");
+					}
+				} else {
+					Util.showMessage("Patient service is null :-(");					
+				}
 			}
 		});
 	}
