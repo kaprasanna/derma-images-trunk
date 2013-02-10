@@ -101,11 +101,6 @@
                      class="com.bh.derma.images.commands.handlers.ExportCompareResultsHandler">
                </defaultHandler>
          </command>
-         <command
-               defaultHandler="com.bh.derma.images.commands.handlers.ApplyPreferencesHandler"
-               id="derma-images.commands.apply.preference.command"
-               name="name">
-         </command>
    </extension>
    <extension
          id="product"

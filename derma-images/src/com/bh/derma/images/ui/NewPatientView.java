@@ -43,6 +43,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bh.derma.images.internal.Activator;
+import com.bh.derma.images.model.PatientFactory;
 import com.bh.derma.images.service.IPatientService;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
 import com.bh.derma.images.ui.util.Util;
@@ -565,15 +566,21 @@ public class NewPatientView extends ViewPart {
 		buttonSaveSearch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				IPatientService pservice = Activator.getDefault().getPatientService();
-				if(pservice != null) {
-					IStatus status = pservice.saveNewPatient(null);
-					if (status == Status.OK_STATUS) {
-						Util.showMessage("Saved patient.\nOK Status!");
+				if(buttonSaveSearch.getText().equals("Save")) {
+					IPatientService pservice = Activator.getDefault().getPatientService();
+					if(pservice != null) {
+						IStatus status = pservice.saveNewPatient(null);
+						
+						if (status == Status.OK_STATUS) {
+							Util.showMessage("Saved patient.\nOK Status!");
+						}
+					} else {
+						Util.showMessage("Patient service is null :-(");					
 					}
 				} else {
-					Util.showMessage("Patient service is null :-(");					
+					
 				}
+				
 			}
 		});
 	}
