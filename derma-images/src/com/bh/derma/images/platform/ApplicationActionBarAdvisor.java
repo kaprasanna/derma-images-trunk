@@ -2,12 +2,16 @@ package com.bh.derma.images.platform;
 
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ContributionItemFactory;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
+
+import com.bh.derma.images.internal.Activator;
 
 public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 
@@ -24,11 +28,20 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     }
 
     protected void fillMenuBar(IMenuManager menuBar) {
-    	MenuManager windowMenu = new MenuManager("&Window", IWorkbenchActionConstants.M_WINDOW);
+    	MenuManager windowMenu = new MenuManager(
+    						"&Window", IWorkbenchActionConstants.M_WINDOW);
     	showViewMenuMgr.add(showViewItem); 
     	windowMenu.add(showViewMenuMgr);
     	
 //    	menuBar.add(windowMenu);
     }
     
+    @Override
+    protected void fillStatusLine(IStatusLineManager statusLine) {
+    	StatusLineContributionItem statusItem =
+    					new StatusLineContributionItem("LoggedInStatus");
+    	statusLine.add(statusItem);
+    	
+    	Activator.getDefault().setStatusItem(statusItem);
+    }
 }

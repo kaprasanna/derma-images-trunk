@@ -29,7 +29,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
         configurer.setInitialSize(new Point(size.width, size.height));
         
         configurer.setShowCoolBar(false);
-        configurer.setShowStatusLine(false);
+        configurer.setShowStatusLine(true);
         configurer.setTitle("Derma Images"); //$NON-NLS-1$
         
         PlatformUI.getPreferenceStore().setValue(IWorkbenchPreferenceConstants.SHOW_TRADITIONAL_STYLE_TABS, 

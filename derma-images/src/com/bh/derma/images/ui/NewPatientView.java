@@ -1,9 +1,13 @@
 package com.bh.derma.images.ui;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.UUID;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -43,7 +47,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import com.bh.derma.images.internal.Activator;
+import com.bh.derma.images.model.IPatient;
+import com.bh.derma.images.model.ISeries;
+import com.bh.derma.images.model.IStudy;
 import com.bh.derma.images.model.PatientFactory;
+import com.bh.derma.images.model.SeriesFactory;
+import com.bh.derma.images.model.StudyFactory;
 import com.bh.derma.images.service.IPatientService;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
 import com.bh.derma.images.ui.util.Util;
@@ -58,6 +67,13 @@ public class NewPatientView extends ViewPart {
 	
 	private Composite newPatientVisitComposite;
 	private ScrolledComposite scrolledComposite;
+
+	private Text textName;
+
+	private Text textID;
+	
+	private IPatient activePatient;
+	private IStudy activeStudy;
 	
 	public List<String> getSelectedPhotosFilesList() {
 		return selectedPhotosFilesList;
@@ -150,16 +166,16 @@ public class NewPatientView extends ViewPart {
 		lblIdGD.verticalIndent = 5;
 		lblId.setLayoutData(lblIdGD);
 		
-		Text txtName = new Text(newPatientGroup, SWT.BORDER);
+		textName = new Text(newPatientGroup, SWT.BORDER);
 		GridData txtNameGD = new GridData(GridData.FILL_HORIZONTAL);
 		txtNameGD.horizontalSpan = 3;
 		txtNameGD.grabExcessHorizontalSpace = true;
-		txtName.setLayoutData(txtNameGD);
+		textName.setLayoutData(txtNameGD);
 		
-		Text txtID = new Text(newPatientGroup, SWT.BORDER);
+		textID = new Text(newPatientGroup, SWT.BORDER);
 		GridData txtIDGD = new GridData(GridData.FILL_HORIZONTAL);
 		txtIDGD.grabExcessHorizontalSpace = true;
-		txtID.setLayoutData(txtIDGD);
+		textID.setLayoutData(txtIDGD);
 		
 		Label lblStudyType = new Label(newPatientGroup, SWT.NONE);
 		lblStudyType.setText("Study Type:");
@@ -236,7 +252,7 @@ public class NewPatientView extends ViewPart {
 		lblNewStudyNameGD.verticalIndent = 5;
 		lblNewStudyName.setLayoutData(lblNewStudyNameGD);
 		
-		Text newStudyNameText = new Text(newStudyGroup, SWT.BORDER);
+		final Text newStudyNameText = new Text(newStudyGroup, SWT.BORDER);
 		GridData newStudyNameTextGD = new GridData(GridData.FILL_HORIZONTAL);
 		newStudyNameTextGD.horizontalSpan = 3;
 		newStudyNameTextGD.verticalIndent = 5;
@@ -249,18 +265,18 @@ public class NewPatientView extends ViewPart {
 		lblNewStudyTypeGD.verticalIndent = 5;
 		lblNewStudyType.setLayoutData(lblNewStudyTypeGD);
 		
-		Combo selectNewStudyTypeCombo = new Combo(newStudyGroup, SWT.READ_ONLY);
+		final Combo selectNewStudyTypeCombo = new Combo(newStudyGroup, SWT.READ_ONLY);
 		GridData selectNewStudyTypeComboGD = new GridData(GridData.FILL_HORIZONTAL);
 		selectNewStudyTypeComboGD.horizontalSpan = 2;
 		selectNewStudyTypeComboGD.verticalIndent = 5;
 		selectNewStudyTypeComboGD.grabExcessHorizontalSpace = true;
 		selectNewStudyTypeCombo.setLayoutData(selectNewStudyTypeComboGD);
 		
-		DateTime dateTimeDate = new DateTime(newStudyGroup, SWT.BORDER | SWT.DATE);
+		final DateTime newStudyDateTimeDate = new DateTime(newStudyGroup, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
 		GridData dateTimeDateGD = new GridData(GridData.FILL_HORIZONTAL);
 		dateTimeDateGD.grabExcessHorizontalSpace = true;
 		dateTimeDateGD.verticalIndent = 5;
-		dateTimeDate.setLayoutData(dateTimeDateGD);
+		newStudyDateTimeDate.setLayoutData(dateTimeDateGD);
 
 		final Button btnSaveStudy = new Button(newStudyGroup, SWT.NONE);
 		GridData btnSaveStudyGD = new GridData(GridData.FILL_HORIZONTAL);
@@ -285,7 +301,7 @@ public class NewPatientView extends ViewPart {
 		lblNewSeriesNameGD.verticalIndent = 5;
 		lblNewSeriesName.setLayoutData(lblNewSeriesNameGD);
 		
-		Text newSeriesNameText = new Text(newSeriesGroup, SWT.BORDER);
+		final Text newSeriesNameText = new Text(newSeriesGroup, SWT.BORDER);
 		GridData newSeriesNameTextGD = new GridData(GridData.FILL_HORIZONTAL);
 		newSeriesNameTextGD.horizontalSpan = 3;
 		newSeriesNameTextGD.verticalIndent = 5;
@@ -298,12 +314,12 @@ public class NewPatientView extends ViewPart {
 		lblNewSeriesTimeGD.verticalIndent = 5;
 		lblNewSeriesTime.setLayoutData(lblNewSeriesTimeGD);
 		
-		DateTime seriesTime = new DateTime(newSeriesGroup, SWT.BORDER | SWT.TIME);
+		final DateTime newSeriesDateTimeTime = new DateTime(newSeriesGroup, SWT.BORDER | SWT.TIME | SWT.DROP_DOWN);
 		GridData seriesTimeGD = new GridData(GridData.FILL_HORIZONTAL);
 		seriesTimeGD.horizontalSpan = 1;
 		seriesTimeGD.grabExcessHorizontalSpace = true;
 		seriesTimeGD.verticalIndent = 5;
-		seriesTime.setLayoutData(seriesTimeGD);
+		newSeriesDateTimeTime.setLayoutData(seriesTimeGD);
 		
 		Label placeHolder = new Label(newSeriesGroup, SWT.NONE);
 		GridData placeHolderGD = new GridData(GridData.FILL_HORIZONTAL);
@@ -320,7 +336,7 @@ public class NewPatientView extends ViewPart {
 		lblNewSeriesDescriptionGD.verticalIndent = 5;
 		lblNewSeriesDescription.setLayoutData(lblNewSeriesDescriptionGD);
 		
-		Text newSeriesNameDescription = new Text(newSeriesGroup, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
+		final Text newSeriesNameDescription = new Text(newSeriesGroup, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI);
 		GridData newSeriesNameDescriptionGD = new GridData(GridData.FILL_HORIZONTAL |  GridData.FILL_VERTICAL);
 		newSeriesNameDescriptionGD.horizontalSpan = 3;
 		newSeriesNameDescriptionGD.verticalIndent = 5;
@@ -567,21 +583,126 @@ public class NewPatientView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(buttonSaveSearch.getText().equals("Save")) {
+					String newPatientName = textName.getText();
+					String ID = textID.getText();
+					
+					if(newPatientName == null || "".equals(newPatientName)) {
+						Util.showMessage("Name can't be empty!");
+						return;
+					}
+					
+					if(ID == null || "".equals(ID)) {
+						ID = String.valueOf(UUID.randomUUID().getMostSignificantBits());
+					}
+					
+					IPatient newPatient = PatientFactory.getInstance().create(ID, newPatientName, null);
+					
 					IPatientService pservice = Activator.getDefault().getPatientService();
 					if(pservice != null) {
-						IStatus status = pservice.saveNewPatient(null);
+						IStatus status = null;
+						try {
+							status = pservice.saveNewPatient(newPatient);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
 						
 						if (status == Status.OK_STATUS) {
-							Util.showMessage("Saved patient.\nOK Status!");
+							Activator.getDefault().getStatusItem().setText("Active Patient : " + newPatient.getName());
+							activePatient = newPatient;
+							
+							textName.setText("");
+							textID.setText("");
+							
+						} else {
+							// XXX log
 						}
 					} else {
-						Util.showMessage("Patient service is null :-(");					
+						Util.showMessage("Patient service is null :-(");
 					}
 				} else {
-					
+					// XXX search
 				}
 				
 			}
+		});
+		
+		btnSaveStudy.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				IStudy newStudy = StudyFactory.getInstance().create(null);
+				newStudy.setStudyName(newStudyNameText.getText());
+				
+				// get selected date for new study
+				Calendar calendar = Calendar.getInstance();
+				calendar.set(Calendar.DAY_OF_MONTH, newStudyDateTimeDate.getDay());
+				calendar.set(Calendar.MONTH, newStudyDateTimeDate.getMonth());
+				calendar.set(Calendar.YEAR, newStudyDateTimeDate.getYear());
+				
+				Date studyDate = calendar.getTime();
+				
+				newStudy.setStudyDate(studyDate);
+				newStudy.setStudyType(selectNewStudyTypeCombo.getText());
+				newStudy.setPatientID(activePatient.getId());
+				newStudy.setNumberOfSeries((Integer)0);
+				newStudy.setStudyID(String.valueOf(UUID.randomUUID().getLeastSignificantBits()));
+				
+				IPatientService pservice = Activator.getDefault().getPatientService();
+				IStatus status = null;
+				try {
+					status = pservice.saveNewStudy(newStudy);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				if (status == Status.OK_STATUS) {
+					activeStudy = newStudy;
+					
+					Activator.getDefault().getStatusItem().setText(
+							"Active Patient : " + activePatient.getName() +
+								  " Active Study : " + activeStudy.toString());
+					
+				} else {
+					// XXX log
+				}
+			}
+		});
+		
+		buttnoSaveSeries.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				ISeries newSeries = SeriesFactory.getInstance().create(null);
+				newSeries.setName(newSeriesNameText.getText());
+				newSeries.setNotes(newSeriesNameDescription.getText());
+				newSeries.setParentStudy(activeStudy);
+				newSeries.setPhotos(selectedPhotosFilesList);
+				newSeries.setSeriesID(String.valueOf(UUID.randomUUID().getMostSignificantBits()));
+				
+				// get selected date for new study
+				Calendar calendar = Calendar.getInstance();
+				calendar.set(Calendar.DAY_OF_MONTH, newSeriesDateTimeTime.getDay());
+				calendar.set(Calendar.MONTH, newSeriesDateTimeTime.getMonth());
+				calendar.set(Calendar.YEAR, newSeriesDateTimeTime.getYear());
+				calendar.set(Calendar.HOUR_OF_DAY, newSeriesDateTimeTime.getHours());
+				calendar.set(Calendar.MINUTE, newSeriesDateTimeTime.getMinutes());
+				calendar.set(Calendar.SECOND, newSeriesDateTimeTime.getSeconds());
+				
+				newSeries.setSeriesTime(calendar.getTime());
+				
+				IPatientService pservice = Activator.getDefault().getPatientService();
+				IStatus status = null;
+				try {
+					status = pservice.saveNewSeries(newSeries);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+				if (status == Status.OK_STATUS) {
+					
+					
+				} else {
+					// XXX log
+				}
+			};
 		});
 	}
 

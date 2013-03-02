@@ -33,11 +33,6 @@ public class ImagesGridView extends ViewPart {
 	private Composite thumbnailGridComposite;
 	private ScrolledComposite thumbnailGridScrolledComposite;
 	
-	NewPatientView newPatientVisitView =
-			(NewPatientView) Activator.getView(
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
-					NewPatientView.ID);
-
 	public Composite getThumbnailGridComposite() {
 		return thumbnailGridComposite;
 	}
@@ -99,6 +94,11 @@ public class ImagesGridView extends ViewPart {
 		btnCompareSelected.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				NewPatientView newPatientVisitView =
+						(NewPatientView) Activator.getView(
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+								NewPatientView.ID);
+				
 				List<String> selectedPhotosFilesList = newPatientVisitView.getSelectedPhotosFilesList();
 				if(selectedPhotosFilesList != null && (selectedPhotosFilesList.size() > 0)) {
 					Image[] images = Util.imageFilesToImages(selectedPhotosFilesList);
@@ -138,12 +138,36 @@ public class ImagesGridView extends ViewPart {
 		btnCompareSelected.setBounds(22, 657, 108, 25);
 		btnCompareSelected.setText("Compare Selected");
 		
+		Button btnSelectAll = new Button(thumbnailComposite, SWT.NONE);
+		btnSelectAll.setBounds(22, 700, 108, 25);
+		btnSelectAll.setText("Select All");
+		btnSelectAll.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				NewPatientView newPatientVisitView =
+						(NewPatientView) Activator.getView(
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+								NewPatientView.ID);
+				List<ThumbnailWidget> thumbnailWidgetList = newPatientVisitView.getThumbnailWidgetList();
+				for(ThumbnailWidget thumbnailWidget : thumbnailWidgetList) {
+					 Button checkBox = thumbnailWidget.getCheckBox();
+						 checkBox.setSelection(true);
+						 String selectedPhotosFile = ((ThumbnailWidget)checkBox.getData()).getSelectedPhotoFilePath();
+						 newPatientVisitView.getSelectedPhotosFilesList().add(selectedPhotosFile);
+				}
+			}
+		});
+		
 		Button btnDeSelectAll = new Button(thumbnailComposite, SWT.NONE);
-		btnDeSelectAll.setBounds(22, 700, 108, 25);
+		btnDeSelectAll.setBounds(22, 730, 108, 25);
 		btnDeSelectAll.setText("Deselect All");
 		btnDeSelectAll.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				NewPatientView newPatientVisitView =
+						(NewPatientView) Activator.getView(
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+								NewPatientView.ID);
 				List<ThumbnailWidget> thumbnailWidgetList = newPatientVisitView.getThumbnailWidgetList();
 				for(ThumbnailWidget thumbnailWidget : thumbnailWidgetList) {
 					 Button checkBox = thumbnailWidget.getCheckBox();

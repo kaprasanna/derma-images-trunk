@@ -83,5 +83,11 @@ public class Util {
 	
 	public static void showMessage(String message) {
 		MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), "Merge Pictures", message);
+	}	
+	
+	public static void printInCaps(String[] stringInSmalls) {
+		for(String stringInSmall : stringInSmalls) {
+			System.out.println(stringInSmall.toUpperCase());
+		}
 	}
 }
