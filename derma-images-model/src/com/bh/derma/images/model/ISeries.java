@@ -1,5 +1,6 @@
 package com.bh.derma.images.model;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ISeries {
@@ -18,10 +19,14 @@ public interface ISeries {
 
 	public List<Object> getPhotos();
 
-	public void setPhotos(List<Object> photos);
+	public void setPhotos(Object photos);
 	
 	public IStudy getParentStudy();
 	
 	public void setParentStudy(IStudy parentStudy);
+	
+	public void setSeriesTime(Date date);
+	
+	public Date getSeriesTime();
 
 }

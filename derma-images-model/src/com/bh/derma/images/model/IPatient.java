@@ -12,4 +12,8 @@ public interface IPatient {
 
 	public IStudy[] getStudies();
 
+	void setType(Object type);
+
+	Object getType();
+
 }

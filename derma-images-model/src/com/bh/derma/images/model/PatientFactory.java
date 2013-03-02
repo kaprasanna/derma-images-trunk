@@ -2,6 +2,7 @@ package com.bh.derma.images.model;
 
 import com.bh.derma.images.impl.Patient;
 
+
 public class PatientFactory {
 	
 	private static PatientFactory INSTANCE = null;
@@ -20,7 +21,7 @@ public class PatientFactory {
 		return INSTANCE;
 	}
 	
-	public IPatient create(Object type) {
-		return new Patient(type);
+	public IPatient create(String id, String name, Object type) {
+		return new Patient(id, name, type);
 	}
 }

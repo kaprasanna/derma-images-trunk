@@ -1,5 +1,6 @@
 package com.bh.derma.images.impl;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import com.bh.derma.images.model.ISeries;
@@ -10,6 +11,7 @@ public class Study implements IStudy {
 	private String studyName;
 	private Date studyDate;
 	private String studyType;
+	private String patientID;
 	
 	/**
 	 * @return the studyType
@@ -76,5 +78,39 @@ public class Study implements IStudy {
 	public Date getStudyDate() {
 		return studyDate;
 	}
+	
+	@Override
+	public String getPatientID() {
+		return patientID;
+	}
+	
+	/**
+	 * @param patientID the patientID to set
+	 */
+	@Override
+	public void setPatientID(String patientID) {
+		this.patientID = patientID;
+	}
+	
+	@Override
+	public String toString() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(studyDate);
+		String studyDateStr = String.valueOf(cal.get(Calendar.DAY_OF_MONTH));
+		studyDateStr += "-" + String.valueOf(cal.get(Calendar.MONTH));
+		studyDateStr += "-" + String.valueOf(cal.get(Calendar.YEAR));
+		
+		return studyName.concat(" ").concat(studyType).concat(" ").concat(studyDateStr);
+	}
+	
+	@Override
+	public String getStudyID() {
+		return null;
+	}
+	
+	@Override
+	public void setStudyID(String studyID) {
+	}
+	
 	
 }

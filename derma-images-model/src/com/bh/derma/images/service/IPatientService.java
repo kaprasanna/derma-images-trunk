@@ -1,5 +1,9 @@
 package com.bh.derma.images.service;
 
+import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.eclipse.core.runtime.IStatus;
 
 import com.bh.derma.images.model.IPatient;
@@ -8,7 +12,7 @@ import com.bh.derma.images.model.IStudy;
 
 public interface IPatientService {
 
-	public IStatus saveNewPatient(IPatient patient);
+	public IStatus saveNewPatient(IPatient patient) throws IOException;
 	
 	/**
 	 * Update patient's name. ID can't be modified once entered.
@@ -22,13 +26,14 @@ public interface IPatientService {
 	/**
 	 * Add a {@link Study} / visit entry for the {@link Patient}
 	 * 
-	 * @param patient
 	 * @param study
 	 * @return
+	 * @throws ParserConfigurationException 
+	 * @throws IOException 
 	 */
-	public IStatus saveNewStudy(IStudy study, IPatient patient);
+	public IStatus saveNewStudy(IStudy study) throws IOException;
 	
-	public IStatus saveNewSeries(ISeries series, IStudy study, IPatient patient);
+	public IStatus saveNewSeries(ISeries series) throws IOException;
 	
 	public IPatient[] searchPatients(String name, String id);
 

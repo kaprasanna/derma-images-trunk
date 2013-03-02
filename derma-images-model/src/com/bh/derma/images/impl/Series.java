@@ -1,5 +1,6 @@
 package com.bh.derma.images.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import com.bh.derma.images.model.ISeries;
@@ -11,6 +12,7 @@ public class Series implements ISeries {
 	private String notes;
 	private List<Object> photos;
 	private Study parentStudy;
+	private Date seriesTime;
 
 	/**
 	 * @return the parentStudy
@@ -79,14 +81,31 @@ public class Series implements ISeries {
 	/* (non-Javadoc)
 	 * @see com.bh.derma.images.model.ISeries#setPhotos(java.util.List)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public void setPhotos(List<Object> photos) {
-		this.photos = photos;
+	public void setPhotos(Object photos) {
+		this.photos = (List<Object>) photos;
 	}
 	
 	@Override
 	public void setParentStudy(IStudy parentStudy) {
 		this.parentStudy = (Study) parentStudy;
 	}
+	/**
+	 * @return the seriesTime
+	 */
+	@Override
+	public Date getSeriesTime() {
+		return seriesTime;
+	}
+	
+	/**
+	 * @param seriesTime the seriesTime to set
+	 */
+	@Override
+	public void setSeriesTime(Date seriesTime) {
+		this.seriesTime = seriesTime;
+	}
+	
 	
 }

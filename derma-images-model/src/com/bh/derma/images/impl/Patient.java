@@ -6,9 +6,15 @@ import com.bh.derma.images.model.IStudy;
 public class Patient implements IPatient {
 	private String id;
 	private String name;
+	Object type;
+	IStudy[] studies;
 	
-	public Patient(Object type) {
+	public Patient(String id, String name, Object type) {
+		this.id = id;
+		this.name = name;
+		this.type = type;
 	}
+
 	/* (non-Javadoc)
 	 * @see com.bh.derma.images.model.IPatient#getId()
 	 */
@@ -44,6 +50,17 @@ public class Patient implements IPatient {
 	 */
 	@Override
 	public IStudy[] getStudies() {
+		return studies;
+	}
+
+
+	@Override
+	public void setType(Object type) {
+	}
+
+
+	@Override
+	public Object getType() {
 		return null;
 	}	
 }

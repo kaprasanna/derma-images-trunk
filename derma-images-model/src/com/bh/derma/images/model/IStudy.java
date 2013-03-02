@@ -19,5 +19,17 @@ public interface IStudy {
 	public ISeries[] getAllSeries();
 
 	public ISeries[] getSeries(String name, String notes);
+	
+	public String getPatientID();
+	
+	public void setPatientID(String patientID);
+	
+	public String getStudyType();
+
+	public void setStudyType(String studyType);
+	
+	public String getStudyID();
+	
+	public void setStudyID(String studyID);
 
 }
