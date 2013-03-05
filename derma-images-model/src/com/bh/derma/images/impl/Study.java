@@ -12,6 +12,7 @@ public class Study implements IStudy {
 	private Date studyDate;
 	private String studyType;
 	private String patientID;
+	private String studyID;
 	
 	/**
 	 * @return the studyType
@@ -105,12 +106,11 @@ public class Study implements IStudy {
 	
 	@Override
 	public String getStudyID() {
-		return null;
+		return studyID;
 	}
 	
 	@Override
 	public void setStudyID(String studyID) {
-	}
-	
-	
+		this.studyID = studyID;
+	}	
 }

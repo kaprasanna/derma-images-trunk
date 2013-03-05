@@ -1,6 +1,7 @@
 package com.bh.derma.images.service;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -35,6 +36,10 @@ public interface IPatientService {
 	
 	public IStatus saveNewSeries(ISeries series) throws IOException;
 	
-	public IPatient[] searchPatients(String name, String id);
+	public List<IPatient> searchPatients(String name, String id) throws Exception;
+
+	public List<IStudy> getStudiesForPatient(IPatient selectedPatient) throws Exception;
+
+	public List<ISeries> getSeriesForStudy(IStudy selectedStudy) throws Exception;
 
 }

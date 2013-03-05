@@ -2,6 +2,8 @@ package patient.service.xml.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,6 +18,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,11 +31,15 @@ import org.eclipse.core.runtime.Status;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.bh.derma.images.model.IPatient;
 import com.bh.derma.images.model.ISeries;
 import com.bh.derma.images.model.IStudy;
+import com.bh.derma.images.model.PatientFactory;
+import com.bh.derma.images.model.SeriesFactory;
+import com.bh.derma.images.model.StudyFactory;
 import com.bh.derma.images.service.IPatientService;
 
 public class XMLPatientService implements IPatientService {
@@ -50,6 +61,7 @@ public class XMLPatientService implements IPatientService {
 	private static final String STUDY_ELEMENT_ATTRIBUTE_STUDYDATE = "studyDate";
 	private static final String STUDY_ELEMENT_ATTRIBUTE_STUDYTYPE = "studyType";
 	private static final String STUDY_ELEMENT_ATTRIBUTE_PATIENTID = "patientID";
+	private static final String STUDY_ELEMENT_ATTRIBUTE_STUDY_ID = "studyID";
 	
 
 	// series element and attributes
@@ -57,7 +69,7 @@ public class XMLPatientService implements IPatientService {
 	private static final String SERIES_ELEMENT_ATTRIBUTE_SERIES_ID = "seriesID";
 	private static final String SERIES_ELEMENT_ATTRIBUTE_NAME = "name";
 	private static final String SERIES_ELEMENT_ATTRIBUTE_NOTES = "notes";
-	private static final String SERIES_ELEMENT_ATTRIBUTE_PARENT_STUDY_ID = "parentStudy";
+	private static final String SERIES_ELEMENT_ATTRIBUTE_PARENT_STUDY_ID = "parentStudyID";
 	private static final String SERIES_ELEMENT_ATTRIBUTE_SERIES_TIME = "seriesTime";
 	private static final String SERIES_SUB_ELEMENT_PHOTOS = "photos";
 	private static final String SERIES_SUB_ELEMENT_PHOTOS_SUB_ELEMENT_PHOTO = "photo";
@@ -72,7 +84,6 @@ public class XMLPatientService implements IPatientService {
 	public IStatus saveNewPatient(IPatient patient) throws IOException {
 		// locate patients.xml and add this patient's entry into it.
 		String dirPath = getDirPath(PATIENTS);
-		
 		
 		// create the dir if it isn't there
 		File patientDir = new File(dirPath);
@@ -170,6 +181,7 @@ public class XMLPatientService implements IPatientService {
 			newStudyElement.setAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDYNAME, study.getStudyName());
 			newStudyElement.setAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDYTYPE, study.getStudyType());
 			newStudyElement.setAttribute(STUDY_ELEMENT_ATTRIBUTE_PATIENTID, study.getPatientID());
+			newStudyElement.setAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDY_ID, study.getStudyID());
 
 			// store date as a long.
 			long dateAsLong = study.getStudyDate().getTime();
@@ -227,9 +239,9 @@ public class XMLPatientService implements IPatientService {
 			// create element for new patient			
 			Element newSeriesElement = doc.createElement(SERIES_ELEMENT);
 			newSeriesElement.setAttribute(SERIES_ELEMENT_ATTRIBUTE_SERIES_ID, series.getSeriesID());
-			newSeriesElement.setAttribute(SERIES_ELEMENT_ATTRIBUTE_NAME, series.getName());
+			newSeriesElement.setAttribute(SERIES_ELEMENT_ATTRIBUTE_NAME, series.getSeriesName());
 			newSeriesElement.setAttribute(SERIES_ELEMENT_ATTRIBUTE_NOTES, series.getNotes());
-			newSeriesElement.setAttribute(SERIES_ELEMENT_ATTRIBUTE_PARENT_STUDY_ID, series.getParentStudy().getStudyID());
+			newSeriesElement.setAttribute(SERIES_ELEMENT_ATTRIBUTE_PARENT_STUDY_ID, series.getParentStudyID());
 			
 			Element newSeriesPhotosElement = doc.createElement(SERIES_SUB_ELEMENT_PHOTOS);
 			
@@ -253,6 +265,8 @@ public class XMLPatientService implements IPatientService {
 			rootPatientElement.appendChild(newSeriesElement);
 
 			persist(doc, seriesFile);
+			
+			// XXX update number of series field in the studies xml for this series
 
 			return Status.OK_STATUS;
 		}
@@ -260,7 +274,138 @@ public class XMLPatientService implements IPatientService {
 	}
 
 	@Override
-	public IPatient[] searchPatients(String name, String id) {
+	public List<IPatient> searchPatients(String name, String id) throws Exception {
+		String dirPath = getDirPath(PATIENTS);		
+		File patientDir = new File(dirPath);
+		if(!patientDir.exists()) {
+			LOGGER.info("Patients dir doesn't exist : " + patientDir.getAbsolutePath());
+			throw new Exception("No patients added so far. " + patientDir.getAbsolutePath() + " doesn't exist");
+		}
+		
+		// find if patients.xml doesn't exist
+		File patientsFile = new File(dirPath.concat(File.separator).concat(PATIENTS).concat(FILE_EXTENSION));
+		if(! patientsFile.exists()) {
+			LOGGER.info("Patients file doesn't exist : " + patientsFile.getAbsolutePath());
+			throw new Exception("No patients added so far. " + patientsFile.getAbsolutePath() + " doesn't exist");			
+		}
+		
+		Document doc = parseXMLFile(patientsFile);
+		
+		if(doc != null) {
+			List<IPatient> searchResultsPatient = new ArrayList<IPatient>();
+			
+			String xmlQuery = "//patient[starts-with(@name,'" + name + "')]";
+			NodeList nodes = queryXML(doc, xmlQuery);
+			for(int i = 0; i < nodes.getLength(); i++) {
+				Element patientElement = (Element) nodes.item(i);
+				String searchResultPatientName =
+						patientElement.getAttribute(PATIENT_ELEMENT_ATTRIBUTE_NAME);
+				String searchResultPatientID =
+						patientElement.getAttribute(PATIENT_ELEMENT_ATTRIBUTE_ID);
+				IPatient patient = PatientFactory.getInstance().
+						create(searchResultPatientID, searchResultPatientName, null);
+				searchResultsPatient.add(patient);
+			}
+			
+			return searchResultsPatient;
+		}	
+		
+		return null;
+	}
+	
+	@Override
+	public List<IStudy> getStudiesForPatient(IPatient selectedPatient) throws Exception {
+		String dirPath = getDirPath(STUDIES);		
+		File studyDir = new File(dirPath);
+		if(!studyDir.exists()) {
+			LOGGER.info("Studies dir doesn't exist : " + studyDir.getAbsolutePath());
+			throw new Exception("No studies added so far. " + studyDir.getAbsolutePath() + " doesn't exist");
+		}
+		
+		// find if studies.xml doesn't exist
+		File studiesFile = new File(dirPath.concat(File.separator).concat(STUDIES).concat(FILE_EXTENSION));
+		if(! studiesFile.exists()) {
+			LOGGER.info("Studies file doesn't exist : " + studiesFile.getAbsolutePath());
+			throw new Exception("No Studies added so far. " + studiesFile.getAbsolutePath() + " doesn't exist");			
+		}
+		
+		Document doc = parseXMLFile(studiesFile);
+		
+		if(doc != null) {
+			List<IStudy> searchResultsStudies = new ArrayList<IStudy>();
+			
+			String xmlQuery = "//study[@" + STUDY_ELEMENT_ATTRIBUTE_PATIENTID + "='" + selectedPatient.getId() + "']";
+			NodeList nodes = queryXML(doc, xmlQuery);
+			for(int i = 0; i < nodes.getLength(); i++) {
+				Element studyElement = (Element) nodes.item(i);
+				
+				IStudy study = StudyFactory.getInstance().create(null);
+				study.setPatientID(studyElement.getAttribute(STUDY_ELEMENT_ATTRIBUTE_PATIENTID));
+				study.setStudyID(studyElement.getAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDY_ID));
+				study.setStudyName(studyElement.getAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDYNAME));
+				study.setStudyType(studyElement.getAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDYTYPE));
+				study.setNumberOfSeries(Integer.parseInt(studyElement.getAttribute(STUDY_ELEMENT_ATTRIBUTE_NUMBEROFSERIES)));
+				study.setStudyDate(parseDateFomString(studyElement.getAttribute(STUDY_ELEMENT_ATTRIBUTE_STUDYDATE)));
+				
+				searchResultsStudies.add(study);
+			}
+			
+			return searchResultsStudies;
+		}	
+		return null;
+	}	
+
+	@Override
+	public List<ISeries> getSeriesForStudy(IStudy selectedStudy) throws Exception {
+		String dirPath = getDirPath(SERIES);		
+		File seriesDir = new File(dirPath);
+		if(!seriesDir.exists()) {
+			LOGGER.info("Series dir doesn't exist : " + seriesDir.getAbsolutePath());
+			throw new Exception("No series added so far. " + seriesDir.getAbsolutePath() + " doesn't exist");
+		}
+		
+		// find if studies.xml doesn't exist
+		File seriesFile = new File(dirPath.concat(File.separator).concat(SERIES).concat(FILE_EXTENSION));
+		if(! seriesFile.exists()) {
+			LOGGER.info("Series file doesn't exist : " + seriesFile.getAbsolutePath());
+			throw new Exception("No Series added so far. " + seriesFile.getAbsolutePath() + " doesn't exist");			
+		}
+		
+		Document doc = parseXMLFile(seriesFile);
+		
+		if(doc != null) {
+			List<ISeries> searchResultsStudies = new ArrayList<ISeries>();
+			
+			String xmlQuery = "//series[@" + SERIES_ELEMENT_ATTRIBUTE_PARENT_STUDY_ID + "='" + selectedStudy.getStudyID() + "']";
+			NodeList nodes = queryXML(doc, xmlQuery);
+			for(int i = 0; i < nodes.getLength(); i++) {
+				Element seriesElement = (Element) nodes.item(i);
+				
+				ISeries series = SeriesFactory.getInstance().create(null);
+				series.setSeriesName(seriesElement.getAttribute(SERIES_ELEMENT_ATTRIBUTE_NAME));
+				series.setNotes(seriesElement.getAttribute(SERIES_ELEMENT_ATTRIBUTE_NOTES));
+				series.setParentStudyID(seriesElement.getAttribute(SERIES_ELEMENT_ATTRIBUTE_PARENT_STUDY_ID));
+				series.setSeriesID(seriesElement.getAttribute(SERIES_ELEMENT_ATTRIBUTE_SERIES_ID));
+				series.setSeriesTime(parseDateFomString(seriesElement.getAttribute(SERIES_ELEMENT_ATTRIBUTE_SERIES_TIME)));
+
+				// get the photos sub element
+				NodeList photosNodes = seriesElement.getElementsByTagName(SERIES_SUB_ELEMENT_PHOTOS);
+				if(photosNodes.getLength() > 1 || photosNodes.getLength() ==0) {
+					// zero or more than one set of photos for one series. Something's gone wrong! Log
+				} else {
+					List<Object> photos = new ArrayList<Object>();
+					
+					Element photosNodeElement = (Element) photosNodes.item(0);
+					Object photoObject = photosNodeElement.getAttribute(SERIES_SUB_ELEMENT_PHOTOS_SUB_ELEMENT_PHOTO_ATTRIBUTE_PATH);
+					photos.add(photoObject);
+					
+					series.setPhotos(photos);
+				}
+				searchResultsStudies.add(series);
+			}
+			
+			return searchResultsStudies;
+		}	
 		return null;
 	}
 
@@ -330,5 +475,43 @@ public class XMLPatientService implements IPatientService {
 			e.printStackTrace();
 		}
 		return doc;
+	}
+	
+	/**
+	 * Fires xpath query on the doc with given xpath-expression and returns the
+	 * result.
+	 *
+	 * @param doc
+	 * @param xpatExpression
+	 * @return
+	 */
+	private NodeList queryXML(Document doc, String xpatExpression) {
+	        NodeList nodes = null;
+
+	        XPathFactory factory = XPathFactory.newInstance();
+	        XPath xpath = factory.newXPath();
+	        try {
+	                XPathExpression expr =  xpath.compile(xpatExpression);
+	                Object result = expr.evaluate(doc, XPathConstants.NODESET);
+
+	                nodes = (NodeList) result;
+	        } catch (XPathExpressionException e) {
+	                e.printStackTrace();
+	        }
+
+	        return nodes;
+	}
+	
+	private Date parseDateFomString(String dateStr) {
+        Date dateTime = null;
+        if(!dateStr.equals("")) {
+        	long dateAsLongFromString = Long.parseLong(dateStr);
+        	try {
+        		dateTime = new Date(dateAsLongFromString);
+        	} catch (Exception e) {
+        		LOGGER.info("Date couldn't be parsed");
+        	}
+        }
+        return dateTime;
 	}
 }

@@ -9,9 +9,9 @@ public interface ISeries {
 
 	public void setSeriesID(String seriesID);
 
-	public String getName();
+	public String getSeriesName();
 
-	public void setName(String name);
+	public void setSeriesName(String seriesName);
 
 	public String getNotes();
 
@@ -21,9 +21,9 @@ public interface ISeries {
 
 	public void setPhotos(Object photos);
 	
-	public IStudy getParentStudy();
+	public String getParentStudyID();
 	
-	public void setParentStudy(IStudy parentStudy);
+	public void setParentStudyID(String parentStudyID);
 	
 	public void setSeriesTime(Date date);
 	

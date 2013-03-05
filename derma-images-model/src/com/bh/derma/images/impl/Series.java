@@ -1,32 +1,19 @@
 package com.bh.derma.images.impl;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import com.bh.derma.images.model.ISeries;
-import com.bh.derma.images.model.IStudy;
 
 public class Series implements ISeries {
 	private String seriesID;
-	private String name;
+	private String seriesName;
 	private String notes;
 	private List<Object> photos;
-	private Study parentStudy;
+	private String parentStudyID;
 	private Date seriesTime;
 
-	/**
-	 * @return the parentStudy
-	 */
-	public Study getParentStudy() {
-		return parentStudy;
-	}
-	/**
-	 * @param parentStudy the parentStudy to set
-	 */
-	public void setParentStudy(Study parentStudy) {
-		this.parentStudy = parentStudy;
-	}
-	
 	public Series(Object type) {
 	}
 	/* (non-Javadoc)
@@ -43,20 +30,7 @@ public class Series implements ISeries {
 	public void setSeriesID(String seriesID) {
 		this.seriesID = seriesID;
 	}
-	/* (non-Javadoc)
-	 * @see com.bh.derma.images.model.ISeries#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-	/* (non-Javadoc)
-	 * @see com.bh.derma.images.model.ISeries#setName(java.lang.String)
-	 */
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+	
 	/* (non-Javadoc)
 	 * @see com.bh.derma.images.model.ISeries#getNotes()
 	 */
@@ -88,9 +62,17 @@ public class Series implements ISeries {
 	}
 	
 	@Override
-	public void setParentStudy(IStudy parentStudy) {
-		this.parentStudy = (Study) parentStudy;
+	public void setParentStudyID(String parentStudyID) {
+		this.parentStudyID = parentStudyID;
 	}
+	
+	/**
+	 * @return the parentStudy
+	 */
+	public String getParentStudyID() {
+		return parentStudyID;
+	}
+	
 	/**
 	 * @return the seriesTime
 	 */
@@ -107,5 +89,24 @@ public class Series implements ISeries {
 		this.seriesTime = seriesTime;
 	}
 	
+	@Override
+	public String toString() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(seriesTime);
+		String seriesDateStr = String.valueOf(cal.get(Calendar.HOUR));
+		seriesDateStr += "-" + String.valueOf(cal.get(Calendar.MINUTE));
+		seriesDateStr += "-" + String.valueOf(cal.get(Calendar.SECOND));
+		
+		return seriesName.concat(" ").concat(seriesDateStr);
+	}
 	
+	@Override
+	public String getSeriesName() {
+		return seriesName;
+	}
+	
+	@Override
+	public void setSeriesName(String seriesName) {
+		this.seriesName = seriesName;
+	}
 }

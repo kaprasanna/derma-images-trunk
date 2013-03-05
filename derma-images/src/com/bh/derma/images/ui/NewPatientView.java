@@ -14,7 +14,13 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ComboViewer;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -87,9 +93,14 @@ public class NewPatientView extends ViewPart {
 	public NewPatientView() {
 	}
 
-	private void setFont(Font font) {
-		for(Control control : newPatientVisitComposite.getChildren()) {
-			control.setFont(font);
+	private void setFont(Composite composite, Font font) {
+		for(Control control : composite.getChildren()) {
+			if(control instanceof Composite) {
+				setFont((Composite) control, font);
+			} else {
+				control.setFont(font);
+				control.setSize(control.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			}
 		}
 	}
 	
@@ -100,12 +111,11 @@ public class NewPatientView extends ViewPart {
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
 				if(event.getProperty() == "selectedfont") {
-					Util.showMessage(event.getNewValue().getClass().getName());
 					FontData[] fonts = (FontData[]) event.getNewValue();
 
 					Font font = new Font(Display.getDefault(), fonts[0]);
 					
-					setFont(font);
+					setFont(newPatientVisitComposite, font);
 				}
 			}
 		});
@@ -199,7 +209,7 @@ public class NewPatientView extends ViewPart {
 		buttonSaveSearch.setText("Save");
 		
 		// search result components
-		TableViewer tableViewer = new TableViewer(newPatientGroup, SWT.BORDER | SWT.FULL_SELECTION);
+		final TableViewer tableViewer = new TableViewer(newPatientGroup, SWT.BORDER | SWT.FULL_SELECTION);
 		tableViewer.setColumnProperties(new String[] {"Name", "ID"});
 		Table table = tableViewer.getTable();
 		GridData tableGD = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
@@ -215,14 +225,14 @@ public class NewPatientView extends ViewPart {
 		GridData lblSelectStudyGD = new GridData();
 		lblSelectStudyGD.verticalIndent = 5;
 		lblSelectStudy.setLayoutData(lblSelectStudyGD);
-		
-		Combo selectStudyFromSearchResultsCombo = new Combo(newPatientGroup, SWT.READ_ONLY);
-		GridData selectStudyForSearchComboGD = new GridData(GridData.FILL_HORIZONTAL);
-		selectStudyForSearchComboGD.horizontalSpan = 3;
-		selectStudyForSearchComboGD.verticalIndent = 5;
-		selectStudyForSearchComboGD.grabExcessHorizontalSpace = true;
-		selectStudyFromSearchResultsCombo.setLayoutData(selectStudyForSearchComboGD);
 
+		final ComboViewer selectStudyFromSearchResultsComboViewer = new ComboViewer(newPatientGroup, SWT.READ_ONLY);
+		GridData selectStudyFromSearchResultsComboViewerGD = new GridData(GridData.FILL_HORIZONTAL);
+		selectStudyFromSearchResultsComboViewerGD.horizontalSpan = 3;
+		selectStudyFromSearchResultsComboViewerGD.verticalIndent = 5;
+		selectStudyFromSearchResultsComboViewerGD.grabExcessHorizontalSpace = true;
+		selectStudyFromSearchResultsComboViewer.getControl().setLayoutData(selectStudyFromSearchResultsComboViewerGD);
+		
 		// select series combo
 		Label lblSelectSeries = new Label(newPatientGroup, SWT.NONE);
 		lblSelectSeries.setText("Select Series");
@@ -230,12 +240,12 @@ public class NewPatientView extends ViewPart {
 		lblSelectSeriesGD.verticalIndent = 5;
 		lblSelectSeries.setLayoutData(lblSelectSeriesGD);
 		
-		Combo selectSeriesCombo = new Combo(newPatientGroup, SWT.READ_ONLY);
-		GridData selectSeriesComboGD = new GridData(GridData.FILL_HORIZONTAL);
-		selectSeriesComboGD.horizontalSpan = 3;
-		selectSeriesComboGD.verticalIndent = 5;
-		selectSeriesComboGD.grabExcessHorizontalSpace = true;
-		selectSeriesCombo.setLayoutData(selectSeriesComboGD);
+		final ComboViewer selectSeriesComboViewer = new ComboViewer(newPatientGroup, SWT.READ_ONLY);
+		GridData selectSeriesComboViewerGD = new GridData(GridData.FILL_HORIZONTAL);
+		selectSeriesComboViewerGD.horizontalSpan = 3;
+		selectSeriesComboViewerGD.verticalIndent = 5;
+		selectSeriesComboViewerGD.grabExcessHorizontalSpace = true;
+		selectSeriesComboViewer.getCombo().setLayoutData(selectSeriesComboViewerGD);
 		
 		// new study controls
 		Group newStudyGroup = new Group(newPatientVisitComposite, SWT.NULL);
@@ -385,6 +395,9 @@ public class NewPatientView extends ViewPart {
 		// set defaults
 		radioButtonNewPatient.setSelection(true);
 		selectStudyTypeForSearchingCombo.setEnabled(false);
+		tableViewer.getTable().setEnabled(false);
+		selectStudyFromSearchResultsComboViewer.getControl().setEnabled(false);
+		selectSeriesComboViewer.getControl().setEnabled(false);
 		
 		// set size
 		Point size = newPatientVisitComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -566,6 +579,9 @@ public class NewPatientView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectStudyTypeForSearchingCombo.setEnabled(false);
+				tableViewer.getTable().setEnabled(false);
+				selectStudyFromSearchResultsComboViewer.getControl().setEnabled(false);
+				selectSeriesComboViewer.getControl().setEnabled(false);
 				buttonSaveSearch.setText("Save");
 			}
 		});
@@ -575,6 +591,9 @@ public class NewPatientView extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectStudyTypeForSearchingCombo.setEnabled(true);
+				tableViewer.getTable().setEnabled(true);
+				selectStudyFromSearchResultsComboViewer.getControl().setEnabled(true);
+				selectSeriesComboViewer.getControl().setEnabled(true);
 				buttonSaveSearch.setText("Search");
 			}
 		});
@@ -620,7 +639,32 @@ public class NewPatientView extends ViewPart {
 						Util.showMessage("Patient service is null :-(");
 					}
 				} else {
-					// XXX search
+					String searchName = textName.getText();
+					String searchID = textID.getText();
+					IPatientService pService = Activator.getDefault().getPatientService();
+					
+					try {
+						List<IPatient> patientSearchResults = pService.searchPatients(searchName, searchID);
+						
+						if(patientSearchResults != null) {
+
+							tableViewer.setContentProvider(new ArrayContentProvider());
+							tableViewer.getTable().setLinesVisible(true);
+							tableViewer.getTable().setHeaderVisible(true);
+							// create columns
+							createPatientColumns(tableViewer);
+
+							// set input
+							tableViewer.setInput(patientSearchResults);						
+
+							tableViewer.refresh();
+						} else {
+							// XXX log and inform user null was returned
+						}
+					} catch (Exception e1) {
+						Activator.getDefault().getStatusItem().setText(e1.getMessage());
+					}
+					
 				}
 				
 			}
@@ -646,10 +690,10 @@ public class NewPatientView extends ViewPart {
 				newStudy.setNumberOfSeries((Integer)0);
 				newStudy.setStudyID(String.valueOf(UUID.randomUUID().getLeastSignificantBits()));
 				
-				IPatientService pservice = Activator.getDefault().getPatientService();
+				IPatientService pService = Activator.getDefault().getPatientService();
 				IStatus status = null;
 				try {
-					status = pservice.saveNewStudy(newStudy);
+					status = pService.saveNewStudy(newStudy);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -671,11 +715,12 @@ public class NewPatientView extends ViewPart {
 			public void widgetSelected(SelectionEvent e) {
 				
 				ISeries newSeries = SeriesFactory.getInstance().create(null);
-				newSeries.setName(newSeriesNameText.getText());
+				newSeries.setSeriesName(newSeriesNameText.getText());
 				newSeries.setNotes(newSeriesNameDescription.getText());
-				newSeries.setParentStudy(activeStudy);
+				newSeries.setParentStudyID("");
 				newSeries.setPhotos(selectedPhotosFilesList);
 				newSeries.setSeriesID(String.valueOf(UUID.randomUUID().getMostSignificantBits()));
+				newSeries.setParentStudyID(activeStudy.getStudyID());
 				
 				// get selected date for new study
 				Calendar calendar = Calendar.getInstance();
@@ -688,10 +733,10 @@ public class NewPatientView extends ViewPart {
 				
 				newSeries.setSeriesTime(calendar.getTime());
 				
-				IPatientService pservice = Activator.getDefault().getPatientService();
+				IPatientService pService = Activator.getDefault().getPatientService();
 				IStatus status = null;
 				try {
-					status = pservice.saveNewSeries(newSeries);
+					status = pService.saveNewSeries(newSeries);
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -704,10 +749,85 @@ public class NewPatientView extends ViewPart {
 				}
 			};
 		});
+		
+		tableViewer.getTable().addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
+				if(selection.getFirstElement() instanceof IPatient) {
+					IPatient selectedPatient = (IPatient) selection.getFirstElement();
+					activePatient = selectedPatient;
+					Activator.getDefault().getStatusItem().setText(
+							"Active Patient : " + activePatient.getName());
+					// get all studies of this patient
+					IPatientService pService = Activator.getDefault().getPatientService();
+					try {
+						List<IStudy> studiesForSelectedpatient =
+									pService.getStudiesForPatient(selectedPatient);
+						selectStudyFromSearchResultsComboViewer.
+							setContentProvider(ArrayContentProvider.getInstance());
+						selectStudyFromSearchResultsComboViewer.setLabelProvider(new LabelProvider() {
+							public String getText(Object element) {
+								return ((IStudy)element).toString();
+							};
+						});
+						selectStudyFromSearchResultsComboViewer.setInput(studiesForSelectedpatient);						
+					} catch (Exception e1) {
+						Activator.getDefault().getStatusItem().setText(e1.getMessage());
+					}
+				}
+			}
+		});
+		
+		selectStudyFromSearchResultsComboViewer.getCombo().addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				StructuredSelection selection = (StructuredSelection) selectStudyFromSearchResultsComboViewer.getSelection();
+				if(selection.getFirstElement() instanceof IStudy) {
+					IStudy selectedStudy = (IStudy) selection.getFirstElement();
+					// get all series for this study
+					IPatientService pService = Activator.getDefault().getPatientService();
+					try {
+						List<ISeries> seriesForSelectedStudy = pService.getSeriesForStudy(selectedStudy);
+						selectSeriesComboViewer.setContentProvider(ArrayContentProvider.getInstance());
+						selectSeriesComboViewer.setLabelProvider(new LabelProvider() {
+							public String getText(Object element) {
+								return ((ISeries)element).toString();
+							};
+						});
+						selectSeriesComboViewer.setInput(seriesForSelectedStudy);
+						selectSeriesComboViewer.refresh();
+					} catch (Exception e1) {
+						Activator.getDefault().getStatusItem().setText(e1.getMessage());
+					}
+				}
+			}
+		});
+	}
+	
+	private void createPatientColumns(TableViewer viewer) {
+		TableViewerColumn nameColumn = new TableViewerColumn(viewer, SWT.NONE);
+		nameColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((IPatient)element).getName();
+			}
+		});
+		nameColumn.getColumn().setText("Name");
+		nameColumn.getColumn().setWidth(150);
+		
+		TableViewerColumn idColumn = new TableViewerColumn(viewer, SWT.NONE);
+		idColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((IPatient)element).getId();
+			}
+		});
+		idColumn.getColumn().setWidth(150);
+		idColumn.getColumn().setText("Id");		
 	}
 
 	@Override
 	public void setFocus() {
 	}
-
 }
