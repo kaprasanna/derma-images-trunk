@@ -24,6 +24,8 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -216,7 +218,7 @@ public class NewPatientView extends ViewPart {
 		tableGD.grabExcessHorizontalSpace = true;
 		tableGD.horizontalSpan = 4;
 		tableGD.verticalIndent = 10;
-		tableGD.verticalSpan = 35;
+		tableGD.heightHint = 125;
 		table.setLayoutData(tableGD);
 		
 		// select study combo
@@ -444,133 +446,7 @@ public class NewPatientView extends ViewPart {
 		buttonLoad.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(selectedPhotosFilesList == null) {
-					selectedPhotosFilesList = new ArrayList<String>();
-				} else {
-					selectedPhotosFilesList.clear();
-				}
-				
-				if(thumbnailWidgetList == null) {
-					thumbnailWidgetList = new ArrayList<ThumbnailWidget>();
-				} else {
-					thumbnailWidgetList.clear();
-				}
-				
-				ImagesGridView imagesGridView = (ImagesGridView) Activator.getView(
-						PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
-															ImagesGridView.ID);
-				Composite thumbnailGridComposite =
-								imagesGridView.getThumbnailGridComposite();
-				for(Control control : thumbnailGridComposite.getChildren()) {
-					control.dispose();
-				}
-				int gridWidth = thumbnailGridComposite.getBounds().width;
-				int numberOfColumns = gridWidth / 200 - 1;
-				
-				GridLayout thumbnailGridCompositeGL =
-										new GridLayout(numberOfColumns, true);
-				thumbnailGridComposite.setLayout(thumbnailGridCompositeGL);
-				GridData thumbnailGridCompositeGD =
-											new GridData(GridData.FILL_BOTH);
-				thumbnailGridCompositeGD.horizontalSpan = 2;
-				thumbnailGridComposite.setLayoutData(thumbnailGridCompositeGD);
-				if(loadedPhotosList != null && loadedPhotosList.size() > 0) {
-					// begin add photo composite, check and text fields
-					for(ListIterator<String> selectedPhotosIterator =
-							loadedPhotosList.listIterator(); selectedPhotosIterator.hasNext();) {
-						String selectedPhotoFilePath = selectedPhotosIterator.next();
-						// check if the file has a valid imagesList 
-						final Image thumbnail;
-						try {
-							thumbnail = new Image(Display.getDefault(), selectedPhotoFilePath);
-						} catch (SWTException ex) {
-							selectedPhotosIterator.remove();
-							continue;
-						}
-						Composite imageParentComposite = new Composite(thumbnailGridComposite, SWT.BORDER);
-						GridLayout imageParentCompositeGridLayout = new GridLayout(2, false);
-						imageParentComposite.setLayout(imageParentCompositeGridLayout);
-						GridData imageParentCompositeGridData = new GridData();
-						imageParentCompositeGridData.grabExcessHorizontalSpace = true;
-						imageParentComposite.setLayoutData(imageParentCompositeGridData);
-						
-						final Composite imageComposite = new Composite(imageParentComposite, SWT.BORDER);
-						GridData imageCompositeGridData = new GridData(175, 200);
-						imageCompositeGridData.horizontalSpan = 2;
-						imageComposite.setLayoutData(imageCompositeGridData);
-						
-						imageComposite.addMouseListener(new MouseListener() {
-							@Override
-							public void mouseUp(MouseEvent e) {	}
-
-							@Override
-							public void mouseDown(MouseEvent e) { }
-
-							@Override
-							public void mouseDoubleClick(MouseEvent e) {
-								String selectedPhotosFile = ((ThumbnailWidget)imageComposite.getData()).getSelectedPhotoFilePath();
-								Dialog dialog = new OriginalSizeImageDialog(
-										Display.getDefault().getActiveShell(), new Image[] {new Image(Display.getDefault(), selectedPhotosFile)});
-								dialog.open();
-							}
-						});				
-
-						ResizeImageListener comp1Listener = new ResizeImageListener(thumbnail, imageComposite, true);
-						imageComposite.addListener (SWT.Dispose, comp1Listener);
-						imageComposite.addListener (SWT.Paint, comp1Listener);
-						
-						final Button checkBox = new Button(imageParentComposite, SWT.CHECK);
-						Text imageDescriptionText = new Text(imageParentComposite, SWT.BORDER);
-						GridData imageDescriptionTextGridData = new GridData(GridData.FILL_HORIZONTAL);
-						imageDescriptionTextGridData.grabExcessHorizontalSpace = true;
-						imageDescriptionText.setLayoutData(imageDescriptionTextGridData);
-						
-						ThumbnailWidget thumbnailWidget = new ThumbnailWidget();
-						thumbnailWidget.setImageParentComposite(imageParentComposite);
-						thumbnailWidget.setImageComposite(imageComposite);
-						thumbnailWidget.setImageDescriptionText(imageDescriptionText);
-						thumbnailWidget.setImage(thumbnail);
-						thumbnailWidget.setCheckBox(checkBox);
-						thumbnailWidget.setSelectedPhotoFilePath(selectedPhotoFilePath);
-						
-						checkBox.setData(thumbnailWidget);
-						imageDescriptionText.setData(thumbnailWidget);
-						imageComposite.setData(thumbnailWidget);
-						
-						thumbnailWidgetList.add(thumbnailWidget);
-						
-						checkBox.addSelectionListener(new SelectionListener() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								String selectedPhotosFile = ((ThumbnailWidget)checkBox.getData()).getSelectedPhotoFilePath();
-								if(checkBox.getSelection()) {
-									selectedPhotosFilesList.add(selectedPhotosFile);
-								} else {
-									selectedPhotosFilesList.remove(selectedPhotosFile);
-								}
-							}
-							
-							@Override
-							public void widgetDefaultSelected(SelectionEvent e) { }
-						});
-					}
-					// end add photo composite, check and text fields
-					ScrolledComposite thumbnailGridScrolledComposite =
-									imagesGridView.getViewerScrolledComposite();
-
-					Point size = thumbnailGridComposite.computeSize(
-													SWT.DEFAULT, SWT.DEFAULT);
-					thumbnailGridScrolledComposite.setMinSize(size);
-
-					thumbnailGridScrolledComposite.setContent(thumbnailGridComposite);
-					thumbnailGridScrolledComposite.layout(true);
-				}
-				// show image grid view
-				try {
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ImagesGridView.ID);
-				} catch (PartInitException e1) {
-					e1.printStackTrace();
-				}				
+				loadPhotos();
 			}
 		});
 		
@@ -704,7 +580,9 @@ public class NewPatientView extends ViewPart {
 					Activator.getDefault().getStatusItem().setText(
 							"Active Patient : " + activePatient.getName() +
 								  " Active Study : " + activeStudy.toString());
-					
+					// clear text fields
+					newStudyNameText.setText("");
+					selectNewStudyTypeCombo.clearSelection();
 				} else {
 					// XXX log
 				}
@@ -742,7 +620,10 @@ public class NewPatientView extends ViewPart {
 				}
 				
 				if (status == Status.OK_STATUS) {
-					
+					// clear UI fileds
+					newSeriesNameText.setText("");
+					newSeriesNameDescription.setText("");
+					textPhotosLocation.setText("");
 					
 				} else {
 					// XXX log
@@ -756,9 +637,13 @@ public class NewPatientView extends ViewPart {
 				StructuredSelection selection = (StructuredSelection) tableViewer.getSelection();
 				if(selection.getFirstElement() instanceof IPatient) {
 					IPatient selectedPatient = (IPatient) selection.getFirstElement();
+					
 					activePatient = selectedPatient;
 					Activator.getDefault().getStatusItem().setText(
 							"Active Patient : " + activePatient.getName());
+					selectSeriesComboViewer.getCombo().clearSelection();
+					selectSeriesComboViewer.getCombo().removeAll();
+					
 					// get all studies of this patient
 					IPatientService pService = Activator.getDefault().getPatientService();
 					try {
@@ -785,6 +670,11 @@ public class NewPatientView extends ViewPart {
 				StructuredSelection selection = (StructuredSelection) selectStudyFromSearchResultsComboViewer.getSelection();
 				if(selection.getFirstElement() instanceof IStudy) {
 					IStudy selectedStudy = (IStudy) selection.getFirstElement();
+					activeStudy = selectedStudy;
+					Activator.getDefault().getStatusItem().setText(
+							"Active Patient : " + activePatient.getName() +
+								  " Active Study : " + activeStudy.toString());
+					
 					// get all series for this study
 					IPatientService pService = Activator.getDefault().getPatientService();
 					try {
@@ -803,6 +693,160 @@ public class NewPatientView extends ViewPart {
 				}
 			}
 		});
+		
+		selectSeriesComboViewer.getCombo().addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				StructuredSelection selection = (StructuredSelection)
+						selectSeriesComboViewer.getSelection();
+				if(selection.getFirstElement() instanceof ISeries) {
+					ISeries selectedSeries = (ISeries) selection.getFirstElement();
+
+					if(loadedPhotosList != null) {
+						loadedPhotosList.clear();
+					} else {
+						loadedPhotosList = new ArrayList<String>();
+					}
+					
+					// load photos for selected series				
+					for(Object selectedFileName : selectedSeries.getPhotos()) {
+						loadedPhotosList.add(selectedFileName.toString());
+					}
+					loadPhotos();
+				}
+			}
+		});
+	}
+	
+	
+	private void loadPhotos() {
+		if(selectedPhotosFilesList == null) {
+			selectedPhotosFilesList = new ArrayList<String>();
+		} else {
+			selectedPhotosFilesList.clear();
+		}
+		
+		if(thumbnailWidgetList == null) {
+			thumbnailWidgetList = new ArrayList<ThumbnailWidget>();
+		} else {
+			thumbnailWidgetList.clear();
+		}
+		
+		ImagesGridView imagesGridView = (ImagesGridView) Activator.getView(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow(),
+													ImagesGridView.ID);
+		Composite thumbnailGridComposite =
+						imagesGridView.getThumbnailGridComposite();
+		for(Control control : thumbnailGridComposite.getChildren()) {
+			control.dispose();
+		}
+		int gridWidth = thumbnailGridComposite.getBounds().width;
+		int numberOfColumns = gridWidth / 200 - 1;
+		
+		GridLayout thumbnailGridCompositeGL =
+								new GridLayout(numberOfColumns, true);
+		thumbnailGridComposite.setLayout(thumbnailGridCompositeGL);
+		GridData thumbnailGridCompositeGD =
+									new GridData(GridData.FILL_BOTH);
+		thumbnailGridCompositeGD.horizontalSpan = 2;
+		thumbnailGridComposite.setLayoutData(thumbnailGridCompositeGD);
+		if(loadedPhotosList != null && loadedPhotosList.size() > 0) {
+			// begin add photo composite, check and text fields
+			for(ListIterator<String> selectedPhotosIterator =
+					loadedPhotosList.listIterator(); selectedPhotosIterator.hasNext();) {
+				String selectedPhotoFilePath = selectedPhotosIterator.next();
+				// check if the file has a valid imagesList 
+				final Image thumbnail;
+				try {
+					thumbnail = new Image(Display.getDefault(), selectedPhotoFilePath);
+				} catch (SWTException ex) {
+					selectedPhotosIterator.remove();
+					continue;
+				}
+				Composite imageParentComposite = new Composite(thumbnailGridComposite, SWT.BORDER);
+				GridLayout imageParentCompositeGridLayout = new GridLayout(2, false);
+				imageParentComposite.setLayout(imageParentCompositeGridLayout);
+				GridData imageParentCompositeGridData = new GridData();
+				imageParentCompositeGridData.grabExcessHorizontalSpace = true;
+				imageParentComposite.setLayoutData(imageParentCompositeGridData);
+				
+				final Composite imageComposite = new Composite(imageParentComposite, SWT.BORDER);
+				GridData imageCompositeGridData = new GridData(175, 200);
+				imageCompositeGridData.horizontalSpan = 2;
+				imageComposite.setLayoutData(imageCompositeGridData);
+				
+				imageComposite.addMouseListener(new MouseListener() {
+					@Override
+					public void mouseUp(MouseEvent e) {	}
+
+					@Override
+					public void mouseDown(MouseEvent e) { }
+
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						String selectedPhotosFile = ((ThumbnailWidget)imageComposite.getData()).getSelectedPhotoFilePath();
+						Dialog dialog = new OriginalSizeImageDialog(
+								Display.getDefault().getActiveShell(), new Image[] {new Image(Display.getDefault(), selectedPhotosFile)});
+						dialog.open();
+					}
+				});				
+
+				ResizeImageListener comp1Listener = new ResizeImageListener(thumbnail, imageComposite, true);
+				imageComposite.addListener (SWT.Dispose, comp1Listener);
+				imageComposite.addListener (SWT.Paint, comp1Listener);
+				
+				final Button checkBox = new Button(imageParentComposite, SWT.CHECK);
+				Text imageDescriptionText = new Text(imageParentComposite, SWT.BORDER);
+				GridData imageDescriptionTextGridData = new GridData(GridData.FILL_HORIZONTAL);
+				imageDescriptionTextGridData.grabExcessHorizontalSpace = true;
+				imageDescriptionText.setLayoutData(imageDescriptionTextGridData);
+				
+				ThumbnailWidget thumbnailWidget = new ThumbnailWidget();
+				thumbnailWidget.setImageParentComposite(imageParentComposite);
+				thumbnailWidget.setImageComposite(imageComposite);
+				thumbnailWidget.setImageDescriptionText(imageDescriptionText);
+				thumbnailWidget.setImage(thumbnail);
+				thumbnailWidget.setCheckBox(checkBox);
+				thumbnailWidget.setSelectedPhotoFilePath(selectedPhotoFilePath);
+				
+				checkBox.setData(thumbnailWidget);
+				imageDescriptionText.setData(thumbnailWidget);
+				imageComposite.setData(thumbnailWidget);
+				
+				thumbnailWidgetList.add(thumbnailWidget);
+				
+				checkBox.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						String selectedPhotosFile = ((ThumbnailWidget)checkBox.getData()).getSelectedPhotoFilePath();
+						if(checkBox.getSelection()) {
+							selectedPhotosFilesList.add(selectedPhotosFile);
+						} else {
+							selectedPhotosFilesList.remove(selectedPhotosFile);
+						}
+					}
+					
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) { }
+				});
+			}
+			// end add photo composite, check and text fields
+			ScrolledComposite thumbnailGridScrolledComposite =
+							imagesGridView.getViewerScrolledComposite();
+
+			Point size = thumbnailGridComposite.computeSize(
+											SWT.DEFAULT, SWT.DEFAULT);
+			thumbnailGridScrolledComposite.setMinSize(size);
+
+			thumbnailGridScrolledComposite.setContent(thumbnailGridComposite);
+			thumbnailGridScrolledComposite.layout(true);
+		}
+		// show image grid view
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ImagesGridView.ID);
+		} catch (PartInitException e1) {
+			e1.printStackTrace();
+		}				
 	}
 	
 	private void createPatientColumns(TableViewer viewer) {

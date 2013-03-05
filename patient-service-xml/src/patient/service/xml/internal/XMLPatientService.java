@@ -393,12 +393,15 @@ public class XMLPatientService implements IPatientService {
 				if(photosNodes.getLength() > 1 || photosNodes.getLength() ==0) {
 					// zero or more than one set of photos for one series. Something's gone wrong! Log
 				} else {
+					Element photosNodeElement = (Element) photosNodes.item(0);					
+					NodeList photoElements = photosNodeElement.getElementsByTagName(SERIES_SUB_ELEMENT_PHOTOS_SUB_ELEMENT_PHOTO);
 					List<Object> photos = new ArrayList<Object>();
 					
-					Element photosNodeElement = (Element) photosNodes.item(0);
-					Object photoObject = photosNodeElement.getAttribute(SERIES_SUB_ELEMENT_PHOTOS_SUB_ELEMENT_PHOTO_ATTRIBUTE_PATH);
-					photos.add(photoObject);
-					
+					for(int j = 0; j < photoElements.getLength(); j++) {
+						Element photoElement = (Element) photoElements.item(j);
+						Object photoObject = photoElement.getAttribute(SERIES_SUB_ELEMENT_PHOTOS_SUB_ELEMENT_PHOTO_ATTRIBUTE_PATH);
+						photos.add(photoObject);
+					}
 					series.setPhotos(photos);
 				}
 				searchResultsStudies.add(series);

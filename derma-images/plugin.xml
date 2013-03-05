@@ -101,6 +101,11 @@
                      class="com.bh.derma.images.commands.handlers.ExportCompareResultsHandler">
                </defaultHandler>
          </command>
+         <command
+               defaultHandler="com.bh.derma.images.commands.handlers.ResetCommandHandler"
+               id="com.bh.derma.images.reset.command"
+               name="Reset">
+         </command>
    </extension>
    <extension
          id="product"

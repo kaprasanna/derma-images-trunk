@@ -3,8 +3,12 @@ package com.bh.derma.images.platform;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.StatusLineContributionItem;
+import org.eclipse.jface.action.ToolBarContributionItem;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.actions.ContributionItemFactory;
@@ -40,8 +44,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     protected void fillStatusLine(IStatusLineManager statusLine) {
     	StatusLineContributionItem statusItem =
     					new StatusLineContributionItem("LoggedInStatus");
-    	statusLine.add(statusItem);
-    	
+    	statusLine.add(statusItem);    	
     	Activator.getDefault().setStatusItem(statusItem);
     }
 }
