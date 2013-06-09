@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -24,8 +25,6 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -63,6 +62,7 @@ import com.bh.derma.images.model.SeriesFactory;
 import com.bh.derma.images.model.StudyFactory;
 import com.bh.derma.images.service.IPatientService;
 import com.bh.derma.images.ui.model.ThumbnailWidget;
+//import com.bh.derma.images.ui.util.StatusLineContribution;
 import com.bh.derma.images.ui.util.Util;
 
 public class NewPatientView extends ViewPart {
@@ -321,21 +321,28 @@ public class NewPatientView extends ViewPart {
 		newSeriesNameText.setLayoutData(newSeriesNameTextGD);
 
 		Label lblNewSeriesTime = new Label(newSeriesGroup, SWT.NONE);
-		lblNewSeriesTime.setText("Series Time");
+		lblNewSeriesTime.setText("Series Date Time");
 		GridData lblNewSeriesTimeGD = new GridData();
 		lblNewSeriesTimeGD.verticalIndent = 5;
 		lblNewSeriesTime.setLayoutData(lblNewSeriesTimeGD);
 		
+		final DateTime newSeriesDateTimeDate = new DateTime(newSeriesGroup, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
+		GridData seriesDateGD = new GridData();
+		seriesDateGD.horizontalSpan = 1;
+//		seriesDateGD.grabExcessHorizontalSpace = true;
+		seriesDateGD.verticalIndent = 5;
+		newSeriesDateTimeDate.setLayoutData(seriesDateGD);
+		
 		final DateTime newSeriesDateTimeTime = new DateTime(newSeriesGroup, SWT.BORDER | SWT.TIME | SWT.DROP_DOWN);
-		GridData seriesTimeGD = new GridData(GridData.FILL_HORIZONTAL);
+		GridData seriesTimeGD = new GridData();
 		seriesTimeGD.horizontalSpan = 1;
-		seriesTimeGD.grabExcessHorizontalSpace = true;
+//		seriesTimeGD.grabExcessHorizontalSpace = true;
 		seriesTimeGD.verticalIndent = 5;
 		newSeriesDateTimeTime.setLayoutData(seriesTimeGD);
 		
 		Label placeHolder = new Label(newSeriesGroup, SWT.NONE);
 		GridData placeHolderGD = new GridData(GridData.FILL_HORIZONTAL);
-		placeHolderGD.horizontalSpan = 2;
+		placeHolderGD.horizontalSpan = 1;
 		placeHolderGD.grabExcessHorizontalSpace = true;
 		placeHolder.setLayoutData(placeHolderGD);
 		
@@ -412,6 +419,9 @@ public class NewPatientView extends ViewPart {
 				scrolledComposite.setFocus();
 			}
 		});
+		
+
+		final IPatientService pService = (IPatientService) PlatformUI.getWorkbench().getService(IPatientService.class);
 		
 		// browse button clicked
 		buttonBrowse.addSelectionListener(new SelectionAdapter() {
@@ -492,17 +502,21 @@ public class NewPatientView extends ViewPart {
 					
 					IPatient newPatient = PatientFactory.getInstance().create(ID, newPatientName, null);
 					
-					IPatientService pservice = Activator.getDefault().getPatientService();
-					if(pservice != null) {
+//					IPatientService pservice = Activator.getDefault().getPatientService();
+					if(pService != null) {
 						IStatus status = null;
 						try {
-							status = pservice.saveNewPatient(newPatient);
+							status = pService.saveNewPatient(newPatient);
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						}
 						
 						if (status == Status.OK_STATUS) {
-							Activator.getDefault().getStatusItem().setText("Active Patient : " + newPatient.getName());
+//							StatusLineContribution slc = (StatusLineContribution) Activator.getDefault().getStatusItem();
+//							slc.setText("Active Patient : " + newPatient.getName());
+//							slc.setVisible(true);
+							updateStatus("Active Patient : " + newPatient.getName());
+							
 							activePatient = newPatient;
 							
 							textName.setText("");
@@ -517,7 +531,7 @@ public class NewPatientView extends ViewPart {
 				} else {
 					String searchName = textName.getText();
 					String searchID = textID.getText();
-					IPatientService pService = Activator.getDefault().getPatientService();
+//					IPatientService pService = Activator.getDefault().getPatientService();
 					
 					try {
 						List<IPatient> patientSearchResults = pService.searchPatients(searchName, searchID);
@@ -538,7 +552,10 @@ public class NewPatientView extends ViewPart {
 							// XXX log and inform user null was returned
 						}
 					} catch (Exception e1) {
-						Activator.getDefault().getStatusItem().setText(e1.getMessage());
+//						StatusLineContribution slc = (StatusLineContribution) Activator.getDefault().getStatusItem();
+//						slc.setText("Active Patient : " + e1.getMessage());
+//						slc.setVisible(true);
+						updateStatus("Active Patient : " + e1.getMessage());
 					}
 					
 				}
@@ -566,7 +583,7 @@ public class NewPatientView extends ViewPart {
 				newStudy.setNumberOfSeries((Integer)0);
 				newStudy.setStudyID(String.valueOf(UUID.randomUUID().getLeastSignificantBits()));
 				
-				IPatientService pService = Activator.getDefault().getPatientService();
+//				IPatientService pService = Activator.getDefault().getPatientService();
 				IStatus status = null;
 				try {
 					status = pService.saveNewStudy(newStudy);
@@ -577,10 +594,18 @@ public class NewPatientView extends ViewPart {
 				if (status == Status.OK_STATUS) {
 					activeStudy = newStudy;
 					
-					Activator.getDefault().getStatusItem().setText(
+					
+					String statusLineText = 
 							"Active Patient : " + activePatient.getName() +
-								  " Active Study : " + activeStudy.toString());
-					// clear text fields
+							  " Active Study : " + activeStudy.toString();
+
+
+					updateStatus(statusLineText);
+					
+//					StatusLineContribution slc = (StatusLineContribution) Activator.getDefault().getStatusItem();
+//					slc.setText(statusLineText);
+//					slc.setVisible(true);
+					
 					newStudyNameText.setText("");
 					selectNewStudyTypeCombo.clearSelection();
 				} else {
@@ -602,16 +627,21 @@ public class NewPatientView extends ViewPart {
 				
 				// get selected date for new study
 				Calendar calendar = Calendar.getInstance();
-				calendar.set(Calendar.DAY_OF_MONTH, newSeriesDateTimeTime.getDay());
-				calendar.set(Calendar.MONTH, newSeriesDateTimeTime.getMonth());
-				calendar.set(Calendar.YEAR, newSeriesDateTimeTime.getYear());
+//				calendar.set(Calendar.DAY_OF_MONTH, newSeriesDateTimeTime.getDay());
+//				calendar.set(Calendar.MONTH, newSeriesDateTimeTime.getMonth());
+//				calendar.set(Calendar.YEAR, newSeriesDateTimeTime.getYear());
+				
+				calendar.set(Calendar.DAY_OF_MONTH, newSeriesDateTimeDate.getDay());
+				calendar.set(Calendar.MONTH, newSeriesDateTimeDate.getMonth());
+				calendar.set(Calendar.YEAR, newSeriesDateTimeDate.getYear());
+				
 				calendar.set(Calendar.HOUR_OF_DAY, newSeriesDateTimeTime.getHours());
 				calendar.set(Calendar.MINUTE, newSeriesDateTimeTime.getMinutes());
 				calendar.set(Calendar.SECOND, newSeriesDateTimeTime.getSeconds());
 				
 				newSeries.setSeriesTime(calendar.getTime());
 				
-				IPatientService pService = Activator.getDefault().getPatientService();
+//				IPatientService pService = Activator.getDefault().getPatientService();
 				IStatus status = null;
 				try {
 					status = pService.saveNewSeries(newSeries);
@@ -639,13 +669,18 @@ public class NewPatientView extends ViewPart {
 					IPatient selectedPatient = (IPatient) selection.getFirstElement();
 					
 					activePatient = selectedPatient;
-					Activator.getDefault().getStatusItem().setText(
-							"Active Patient : " + activePatient.getName());
+
+//					StatusLineContribution slc = (StatusLineContribution) Activator.getDefault().getStatusItem();
+//					slc.setText("Active Patient : " + activePatient.getName());
+//					slc.setVisible(true);
+					
+					updateStatus("Active Patient : " + activePatient.getName());
+					
 					selectSeriesComboViewer.getCombo().clearSelection();
 					selectSeriesComboViewer.getCombo().removeAll();
 					
 					// get all studies of this patient
-					IPatientService pService = Activator.getDefault().getPatientService();
+//					IPatientService pService = Activator.getDefault().getPatientService();
 					try {
 						List<IStudy> studiesForSelectedpatient =
 									pService.getStudiesForPatient(selectedPatient);
@@ -658,7 +693,9 @@ public class NewPatientView extends ViewPart {
 						});
 						selectStudyFromSearchResultsComboViewer.setInput(studiesForSelectedpatient);						
 					} catch (Exception e1) {
-						Activator.getDefault().getStatusItem().setText(e1.getMessage());
+						updateStatus(e1.getMessage());
+//						slc.setText(e1.getMessage());
+//						slc.setVisible(true);
 					}
 				}
 			}
@@ -671,12 +708,15 @@ public class NewPatientView extends ViewPart {
 				if(selection.getFirstElement() instanceof IStudy) {
 					IStudy selectedStudy = (IStudy) selection.getFirstElement();
 					activeStudy = selectedStudy;
-					Activator.getDefault().getStatusItem().setText(
-							"Active Patient : " + activePatient.getName() +
-								  " Active Study : " + activeStudy.toString());
+//					StatusLineContribution slc = (StatusLineContribution) Activator.getDefault().getStatusItem();
+//					slc.setText("Active Patient : " + activePatient.getName() +
+//								  " Active Study : " + activeStudy.toString());
+//					slc.setVisible(true);
+					updateStatus("Active Patient : " + activePatient.getName() +
+							  " Active Study : " + activeStudy.toString());
 					
 					// get all series for this study
-					IPatientService pService = Activator.getDefault().getPatientService();
+//					IPatientService pService = Activator.getDefault().getPatientService();
 					try {
 						List<ISeries> seriesForSelectedStudy = pService.getSeriesForStudy(selectedStudy);
 						selectSeriesComboViewer.setContentProvider(ArrayContentProvider.getInstance());
@@ -688,7 +728,8 @@ public class NewPatientView extends ViewPart {
 						selectSeriesComboViewer.setInput(seriesForSelectedStudy);
 						selectSeriesComboViewer.refresh();
 					} catch (Exception e1) {
-						Activator.getDefault().getStatusItem().setText(e1.getMessage());
+//						slc.setText(e1.getMessage());
+						updateStatus(e1.getMessage());
 					}
 				}
 			}
@@ -846,10 +887,22 @@ public class NewPatientView extends ViewPart {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(ImagesGridView.ID);
 		} catch (PartInitException e1) {
 			e1.printStackTrace();
-		}				
+		}
+	}
+	
+	private void updateStatus(String text) {
+		IStatusLineManager statusLineManager = getViewSite().getActionBars().getStatusLineManager();
+		statusLineManager.setMessage(text);
 	}
 	
 	private void createPatientColumns(TableViewer viewer) {
+		// clear columns
+		Table table = viewer.getTable();
+		table.setRedraw(false);
+		while ( table.getColumnCount() > 0 ) {
+		    table.getColumns()[ 0 ].dispose();
+		}
+		
 		TableViewerColumn nameColumn = new TableViewerColumn(viewer, SWT.NONE);
 		nameColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -868,7 +921,9 @@ public class NewPatientView extends ViewPart {
 			}
 		});
 		idColumn.getColumn().setWidth(150);
-		idColumn.getColumn().setText("Id");		
+		idColumn.getColumn().setText("Id");	
+		
+		table.setRedraw(true);
 	}
 
 	@Override

@@ -27,6 +27,7 @@
       <plugin id="derma-images"/>
       <plugin id="derma-images-model"/>
       <plugin id="javax.servlet"/>
+      <plugin id="org.apache.commons.logging"/>
       <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.contenttype"/>
       <plugin id="org.eclipse.core.databinding"/>
@@ -53,10 +54,5 @@
       <plugin id="patient-service-xml"/>
    </plugins>
 
-   <configurations>
-      <plugin id="derma-images" autoStart="false" startLevel="3" />
-      <plugin id="derma-images-model" autoStart="true" startLevel="1" />
-      <plugin id="patient-service-xml" autoStart="true" startLevel="2" />
-   </configurations>
 
 </product>

@@ -1,5 +1,6 @@
 package com.bh.derma.images.internal;
 
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IViewPart;
@@ -19,15 +20,15 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "derma-images"; //$NON-NLS-1$
 	
-	IPatientService patientService;
-	StatusLineContributionItem statusItem;
+//	IPatientService patientService;
+	IContributionItem statusItem;
 	
 	// The shared instance
 	private static Activator plugin;
 	
-	public IPatientService getPatientService() {
-		return patientService;
-	}
+//	public IPatientService getPatientService() {
+//		return patientService;
+//	}
 	
 	/**
 	 * The constructor
@@ -45,7 +46,7 @@ public class Activator extends AbstractUIPlugin {
 //		ServiceTracker tracker = new ServiceTracker(context, IPatientService.class, null);
 //		tracker.open();
 		ServiceReference<IPatientService> patientServiceRef = context.getServiceReference(IPatientService.class);
-		patientService = context.getService(patientServiceRef);
+//		patientService = context.getService(patientServiceRef);
 	}
 
 	/*
@@ -94,14 +95,14 @@ public class Activator extends AbstractUIPlugin {
 	/**
 	 * @return the statusItem
 	 */
-	public StatusLineContributionItem getStatusItem() {
+	public IContributionItem getStatusItem() {
 		return statusItem;
 	}
 
 	/**
 	 * @param statusItem the statusItem to set
 	 */
-	public void setStatusItem(StatusLineContributionItem statusItem) {
+	public void setStatusItem(IContributionItem statusItem) {
 		this.statusItem = statusItem;
 	}
 	

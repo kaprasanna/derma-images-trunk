@@ -80,6 +80,18 @@
              </command>
           </menu> 
       </menuContribution>
+      <!--menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.trim.status">
+         <toolbar
+               id="derma-images.toolbar1">
+            <command
+                  commandId="com.bh.derma.images.reset.command"
+                  label="Reset"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution-->
    </extension>
    
    <!--extension
@@ -138,6 +150,18 @@
             id="derma.images.preferences"
             name="Derma_Images_Preferences">
       </page>
+   </extension>
+   <extension
+         id="product2"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="derma-images.application"
+            name="DermImages">
+         <property
+               name="appName"
+               value="DermImages">
+         </property>
+      </product>
    </extension>
 
 </plugin>

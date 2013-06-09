@@ -80,10 +80,10 @@ public class ImagesGridView extends ViewPart {
 		thumbnailGridScrolledComposite.setContent(thumbnailGridComposite);
 		thumbnailGridScrolledComposite.layout(true);
 		
-		Button btnRemoveSelected = new Button(thumbnailComposite, SWT.NONE);
-		btnRemoveSelected.setBounds(22, 618, 108, 25);
-		btnRemoveSelected.setText("Remove Selected");
-		
+//		Button btnRemoveSelected = new Button(thumbnailComposite, SWT.NONE);
+//		btnRemoveSelected.setBounds(22, 618, 108, 25);
+//		btnRemoveSelected.setText("Remove Selected");
+
 		thumbnailGridScrolledComposite.addListener(SWT.Activate, new Listener() {
 			public void handleEvent(Event e) {
 				thumbnailGridScrolledComposite.setFocus();
@@ -135,7 +135,8 @@ public class ImagesGridView extends ViewPart {
 				
 			}
 		});
-		btnCompareSelected.setBounds(22, 657, 108, 25);
+//		btnCompareSelected.setBounds(22, 657, 108, 25);
+		btnCompareSelected.setBounds(22, 618, 108, 25);
 		btnCompareSelected.setText("Compare Selected");
 		
 		Button btnSelectAll = new Button(thumbnailComposite, SWT.NONE);
