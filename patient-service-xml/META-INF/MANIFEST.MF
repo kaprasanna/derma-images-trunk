@@ -9,5 +9,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui;bundle-version="3.7.0",
  org.apache.commons.logging;bundle-version="1.1.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.bh.derma.images.model,
- com.bh.derma.images.service
+Import-Package: com.bh.derma.images.model,com.bh.derma.images.service
